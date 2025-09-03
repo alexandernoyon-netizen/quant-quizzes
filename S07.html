@@ -3,42 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>QUANT_TEMPLATE_v4 – Interaktives Quiz (Simple Scoring)</title>
-<!--
-===============================================================================
-TEMPLATE: QUANT_TEMPLATE_v4 (Simple Scoring, 2025-08)
-PURPOSE:  Reusable interactive quiz for any course/session.
-
-SCORING:
-- +1 Punkt pro richtige Antwort
-- +0 Punkte bei falscher Antwort
-- Maximalpunkte = Anzahl der Fragen (items.length)
-
-ANZEIGE:
-- "Punkte: X / N" (N = Anzahl der Fragen)
-- "Aufgabe k/N" (k = aktuelle Frage)
-
-TRANSFERFRAGEN:
-- items können ein Feld "transfer:true" enthalten → dann Badge 🧠 TRANSFER
-
-LOCALSTORAGE KEY:
-- Zusammengesetzt aus COURSE_TAG, SESSION_TAG, TEMPLATE_VERSION
-- Damit jede Sitzung unabhängig speichert.
-
-WORKFLOW:
-1) Diese Datei als Template behalten.
-2) Für eine neue Sitzung:
-   - Handout bereitstellen
-   - ChatGPT bitten: "Nutze QUANT_TEMPLATE_v4. Erstelle 12 Fragen: 10 Wiederkäuen (aus Handout), 2 Transfer."
-   - Den generierten Block für `const items = [...]` hier einfügen.
-   - COURSE_TAG und SESSION_TAG oben im Script setzen (z. B. QUANT, S11).
-   - Datei speichern (z. B. `S11.html`) und ins GitHub-Repo hochladen.
-3) Über GitHub Pages abrufbar machen (Repo Settings → Pages).
-
-HINWEIS:
-Dieses Template ist identisch mit der geprüften S11-Version.
-===============================================================================
--->
+<title>QUANT – Studiendesign & Stichprobenlogik: Interaktives Modul</title>
 <style>
   :root{
     --bg:#0b1220; --card:#121826; --muted:#9aa4b2; --text:#eef2f7;
@@ -71,32 +36,19 @@ Dieses Template ist identisch mit der geprüften S11-Version.
   .badge{display:inline-block;font-size:12px;font-weight:800;letter-spacing:.04em;
          padding:2px 8px;border-radius:999px;border:1px solid #334155;color:var(--accent);
          background:rgba(125,211,252,.10)}
-  details{margin-top:6px}
-  details summary{cursor:pointer}
 </style>
 </head>
 <body>
 <div class="shell">
   <header>
     <div>
-      <h1>QUANT_TEMPLATE_v4 • Interaktives Modul</h1>
-      <div class="muted" id="meta">Punkte: <b id="points">0</b> / <b id="maxpoints">0</b> • Aufgabe <b id="idx">1</b>/<b id="total">0</b></div>
-      <details>
-        <summary>Info & Anleitung</summary>
-        <div class="muted">
-          Dieses File ist ein Template. Ersetze die <code>items</code>-Liste im Script unten mit den generierten Fragen (z. B. 10 Wiederkäuen + 2 Transfer).
-          Du kannst <b>COURSE_TAG</b> und <b>SESSION_TAG</b> setzen, damit der <i>localStorage</i>-Schlüssel eindeutig ist.
-          Scoring: <b>+1</b> für richtige Antwort, <b>+0</b> für falsche.
-        </div>
-      </details>
+      <h1>QUANT – Studiendesign & Stichprobenlogik</h1>
+      <div class="muted">Punkte: <b id="pointsLabel">0</b> / <b id="maxLabel">0</b> • Aufgabe <b id="idxLabel">1</b>/<b id="totalLabel">0</b></div>
     </div>
     <div style="min-width:280px">
       <div class="progress"><span id="bar"></span></div>
       <div style="margin-top:8px;display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap">
         <button id="resetBtn" class="secondary" title="Fortschritt löschen und neu starten">Neu starten</button>
-      </div>
-      <div class="muted" style="text-align:right;margin-top:6px">
-        Key: <code id="lskey"></code>
       </div>
     </div>
   </header>
@@ -114,88 +66,263 @@ Dieses Template ist identisch mit der geprüften S11-Version.
 </div>
 
 <script>
-// ================== CONFIG ==================
-const TEMPLATE_VERSION = "v4-simple";
-const COURSE_TAG = "QUANT";    // customize per course
-const SESSION_TAG = "Sxx";     // customize per session
-// ============================================
-
-// =============== ITEMS PLACEHOLDER ===============
-// Replace EVERYTHING between 'BEGIN ITEMS' and 'END ITEMS' with your generated questions.
-/* BEGIN ITEMS */
 const items = [
-  // SAMPLE ITEMS (remove and replace)
   {
-    id:"sample-se-concept",
+    id:"querschnitt-def",
     type:"mc",
-    title:"Standardfehler – Konzept",
-    question:"Was beschreibt der <b>Standardfehler des Mittelwerts</b> am treffendsten?",
+    title:"Grundformen – Zuordnung",
+    question:"Welche Aussage trifft auf den Querschnitt zu?",
     options:[
-      "Streuung der Rohwerte in der Stichprobe",
-      "Streuung der Stichprobenmittelwerte um den Populationsmittelwert",
-      "Differenz zwischen Median und Mittelwert",
-      "Messgenauigkeit"
+      "Mehrere Messzeitpunkte – Entwicklung sichtbar",
+      "Ein Messzeitpunkt – Momentaufnahme",
+      "Manipulation und Randomisierung – kausale Schlüsse",
+      "Beobachtung im Labor – hohe externe Validität"
     ],
     correct:1,
     feedback:[
-      "Das ist die Standardabweichung der Rohwerte.",
-      "Richtig: SE = Streuung der Mittelwerte um μ.",
-      "Lagemaß-Vergleich, nicht SE.",
-      "Reliabilität, nicht SE."
-    ],
-    transfer:false
+      "Nein. Das beschreibt Längsschnitt.",
+      "Richtig. Querschnitt misst zu einem Zeitpunkt.",
+      "Nein. Das beschreibt ein Experiment.",
+      "Nein. Labor spricht eher für interne, nicht externe Validität."
+    ]
   },
   {
-    id:"sample-tf-clt",
-    type:"tf",
-    title:"CLT – Form",
-    question:"Bei moderatem n sind Mittelwerte vieler Stichproben annähernd normalverteilt.",
-    correct:true,
-    feedbackTrue:"Richtig – zentraler Grenzwertsatz.",
-    feedbackFalse:"Falsch – genau das sagt der CLT.",
-    transfer:false
-  },
-  {
-    id:"sample-transfer-n-se",
+    id:"laengsschnitt-nutzen",
     type:"mc",
-    title:"🧪 Transfer: Effekt von n auf SE",
-    question:"n wird verdoppelt. Wie verändert sich der SE (idealisiert)?",
-    options:["halbiert sich","bleibt gleich","verkleinert sich um √2","verdoppelt sich"],
+    title:"Längsschnitt – Merkmal",
+    question:"Wofür ist ein Längsschnitt besonders geeignet?",
+    options:[
+      "Für Ursache-Wirkungs-Aussagen ohne Störfaktoren",
+      "Für Generalisierung ohne Stichprobenfehler",
+      "Für die Abbildung von Veränderungen über die Zeit",
+      "Für die Vermeidung von Recall Bias"
+    ],
     correct:2,
-    feedback:["Nicht genau.","Nein.","Richtig: SE ∝ 1/√n.","Falsch."],
+    feedback:[
+      "Nein. Kausalität braucht Manipulation/Randomisierung.",
+      "Nein. Stichprobenfehler bleiben Thema.",
+      "Richtig. Längsschnitt zeigt Veränderung/Verläufe.",
+      "Nicht zwingend. Recall Bias kann bleiben."
+    ]
+  },
+  {
+    id:"experiment-kern",
+    type:"mc",
+    title:"Experiment – Kernelement",
+    question:"Welches Element macht das Experiment zum fairen Vergleich?",
+    options:[
+      "Große Stichprobe",
+      "Randomisierung der Zuteilung",
+      "Repräsentative Auswahl",
+      "Verblindung der Auswertung"
+    ],
+    correct:1,
+    feedback:[
+      "Hilfreich, aber nicht der Kern.",
+      "Richtig. Randomisierung balanciert Störfaktoren.",
+      "Gut für externe Validität, nicht Kern interner Validität.",
+      "Hilft, ersetzt aber nicht Randomisierung."
+    ]
+  },
+  {
+    id:"randomisierung-vs-zufall",
+    type:"mc",
+    title:"Randomisierung vs. Zufallsstichprobe",
+    question:"Wofür steht Randomisierung – im Unterschied zur Zufallsstichprobe?",
+    options:[
+      "Randomisierung → externe Validität; Zufallsstichprobe → interne Validität",
+      "Randomisierung → interne Validität; Zufallsstichprobe → externe Validität",
+      "Beide sichern interne Validität",
+      "Beide sichern externe Validität"
+    ],
+    correct:1,
+    feedback:[
+      "Nein, genau umgekehrt.",
+      "Richtig. Randomisierung intern, Zufallsstichprobe extern.",
+      "Falsch. Zufallsstichprobe zielt auf externe Validität.",
+      "Falsch. Randomisierung zielt auf interne Validität."
+    ]
+  },
+  {
+    id:"interne-validitaet",
+    type:"mc",
+    title:"Interne vs. externe Validität",
+    question:"Interne Validität bedeutet …",
+    options:[
+      "… das Instrument misst das intendierte Konstrukt.",
+      "… Ergebnisse sind auf andere Kontexte übertragbar.",
+      "… Ergebnisse sind ursächlich auf die Manipulation zurückführbar.",
+      "… die Stichprobe entspricht exakt der Grundgesamtheit."
+    ],
+    correct:2,
+    feedback:[
+      "Nein. Das ist Validität des Messinstruments.",
+      "Nein. Das ist externe Validität.",
+      "Richtig. Interne Validität = Kausalinterpretation.",
+      "Nein. Das ist Repräsentativität/Abdeckung."
+    ]
+  },
+  {
+    id:"quasi-experiment",
+    type:"mc",
+    title:"Quasi-Experiment – Abgrenzung",
+    question:"Wodurch unterscheidet sich ein Quasi-Experiment vom Experiment?",
+    options:[
+      "Keine Intervention",
+      "Keine Messung der AV",
+      "Keine echte Zufallszuteilung zu Gruppen",
+      "Keine Kontrolle von Störvariablen möglich"
+    ],
+    correct:2,
+    feedback:[
+      "Nein. Es gibt eine Intervention.",
+      "Nein. AV wird gemessen.",
+      "Richtig. Zuteilung ist nicht randomisiert.",
+      "Zu stark. Kontrolle kann eingeschränkt möglich sein."
+    ]
+  },
+  {
+    id:"konfundierung-beispiel",
+    type:"mc",
+    title:"Konfundierung – Beispiel",
+    question:"Im Schulbeispiel (LernCampus vs. Regelschule): Was ist die plausibelste Konfundierung?",
+    options:[
+      "Wetterlage während der Prüfungen",
+      "Sozioökonomischer Status bzw. Elternengagement",
+      "Farbe der Klassenräume",
+      "Prüfungsdauer (immer gleich)"
+    ],
+    correct:1,
+    feedback:[
+      "Unwahrscheinlich systematisch.",
+      "Richtig. SES/Elternengagement verzerrt Gruppenvergleich.",
+      "Irrelevant für Leistung in der Regel.",
+      "Konstant – keine Differenz zwischen Gruppen."
+    ]
+  },
+  {
+    id:"biasquellen",
+    type:"mc",
+    title:"Biasquellen – Zuordnung",
+    question:"Welche Zuordnung ist richtig?",
+    options:[
+      "Sozialerwünschtheit → Stichprobenziehung",
+      "Recall Bias → verzerrte Erinnerung",
+      "Non-Response → falsches Messinstrument",
+      "Stichproben-Bias → Antworttendenz innerhalb von Items"
+    ],
+    correct:1,
+    feedback:[
+      "Nein. Sozialerwünschtheit betrifft Antworten, nicht Ziehung.",
+      "Richtig. Recall Bias = Erinnerungsverzerrung.",
+      "Nein. Non-Response = Ausfall/Teilnahmeverweigerung.",
+      "Nein. Das ist Response Bias, nicht Sampling Bias."
+    ]
+  },
+  {
+    id:"monitor-einschraenkung",
+    type:"mc",
+    title:"Monitor-Datensatz – Einschränkung",
+    question:"Welche Aussage ist für den Telefon-Monitor typisch?",
+    options:[
+      "Gewichtung ersetzt fehlende Gruppen vollständig.",
+      "Dual Frame eliminiert alle Stichprobenfehler.",
+      "Einige Gruppen sind schwer erreichbar; Gewichtung korrigiert nicht alles.",
+      "Keine Sozialerwünschtheit bei politischem Verhalten."
+    ],
+    correct:2,
+    feedback:[
+      "Nein. Gewichtung reduziert, ersetzt aber nicht fehlende Gruppen.",
+      "Nein. Dual Frame reduziert, eliminiert aber nicht alles.",
+      "Richtig. Erreichbarkeit bleibt eine Schwäche.",
+      "Unrealistisch. Sozialerwünschtheit bleibt Thema."
+    ]
+  },
+  {
+    id:"fallzahl-idee",
+    type:"mc",
+    title:"Fallzahl – Grundidee",
+    question:"Warum führt größeres n zu stabileren Schätzungen?",
+    options:[
+      "Weil systematische Fehler zunehmen",
+      "Weil Zufallsschwankungen relativ abnehmen",
+      "Weil Messinstrumente genauer werden",
+      "Weil externe Validität automatisch steigt"
+    ],
+    correct:1,
+    feedback:[
+      "Nein. Systematische Fehler bleiben unverändert.",
+      "Richtig. Größere Stichprobe dämpft Zufallsrauschen.",
+      "Nein. Instrumentgenauigkeit ändert sich dadurch nicht.",
+      "Nein. Externe Validität hängt von der Stichprobenziehung ab."
+    ]
+  },
+  {
+    id:"transfer-designwahl",
+    type:"mc",
+    title:"Transfer – Studiendesign wählen",
+    question:"Du willst Wandel politischer Einstellungen über 3 Jahre untersuchen. Welches Design passt am besten?",
+    options:[
+      "Querschnitt in Jahr 1",
+      "Querschnitt in Jahr 3",
+      "Längsschnitt mit wiederholten Messungen",
+      "Quasi-Experiment mit regionalen Gruppen"
+    ],
+    correct:2,
+    feedback:[
+      "Nein. Nur Momentaufnahme.",
+      "Nein. Nur Momentaufnahme am Ende.",
+      "Richtig. Wiederholte Messungen bilden Wandel ab.",
+      "Nein. Keine gezielte Manipulation, Fokus liegt auf Verlauf."
+    ],
+    transfer:true
+  },
+  {
+    id:"transfer-kausalitaet-externe",
+    type:"mc",
+    title:"Transfer – Kausalität vs. Generalisierbarkeit",
+    question:"Du planst eine Ursache-Wirkung-Prüfung mit hoher interner Validität und willst die Befunde verallgemeinern. Was ist sinnvoll?",
+    options:[
+      "Labor-Experiment mit Randomisierung; Stichprobe per Schneeballverfahren",
+      "Experiment mit Randomisierung; zusätzlich Zufallsstichprobe aus der Zielpopulation",
+      "Quasi-Experiment; große n kompensiert fehlende Randomisierung",
+      "Repräsentativer Survey; Kausalität über Kreuztabellen prüfen"
+    ],
+    correct:1,
+    feedback:[
+      "Randomisierung ok, aber Schneeball zerstört externe Validität.",
+      "Richtig. Intern stark (Randomisierung) + extern stark (Zufallsstichprobe).",
+      "Nein. Größe ersetzt keine Randomisierung.",
+      "Nein. Survey ohne Manipulation liefert keine starke Kausalität."
+    ],
     transfer:true
   }
 ];
-/* END ITEMS */
 
-// Derived totals
 const TOTAL_ITEMS = items.length;
+const LS_KEY = "s04_step_state_v4_studien_stichprobe";
 
-// Storage key
-const LS_KEY = `quiz_state_${COURSE_TAG}_${SESSION_TAG}_${TEMPLATE_VERSION}`;
-document.getElementById("lskey").textContent = LS_KEY;
-
-// State
 let state = JSON.parse(localStorage.getItem(LS_KEY) || "{}");
 if(!state.idx && state.idx!==0){ state = { idx:0, points:0, done:{} }; }
 
 function save(){ localStorage.setItem(LS_KEY, JSON.stringify(state)); }
-function setBar(){
+
+function setHeader(){
   const pct = Math.round((state.idx)/TOTAL_ITEMS*100);
   document.getElementById("bar").style.width = pct+"%";
-  document.getElementById("points").textContent = state.points;
-  document.getElementById("maxpoints").textContent = TOTAL_ITEMS;
-  document.getElementById("idx").textContent = Math.min(state.idx+1, TOTAL_ITEMS);
-  document.getElementById("total").textContent = TOTAL_ITEMS;
+  document.getElementById("pointsLabel").textContent = state.points;
+  document.getElementById("maxLabel").textContent = TOTAL_ITEMS;
+  document.getElementById("idxLabel").textContent = Math.min(state.idx+1, TOTAL_ITEMS);
+  document.getElementById("totalLabel").textContent = TOTAL_ITEMS;
 }
 
 function render(){
   const it = items[state.idx];
-  document.getElementById("title").innerHTML = `${state.idx+1}. ${it.title} ${it.transfer ? '<span class="badge" title="Transferfrage: neues Problem auf Basis des Gelernten">🧠 TRANSFER</span>' : ""}`;
-  document.getElementById("question").innerHTML = it.question;
+  document.getElementById("title").innerHTML = `${state.idx+1}. ${it.title} ${it.transfer ? '<span class="badge">🧠 TRANSFER</span>' : ""}`;
   const wrap = document.getElementById("options");
-  wrap.innerHTML = "";
-  const fb = document.getElementById("feedback"); fb.textContent=""; fb.className="fb";
+  const fb = document.getElementById("feedback");
+  document.getElementById("question").innerHTML = it.question;
+  wrap.innerHTML = ""; fb.textContent=""; fb.className="fb";
 
   const nextBtn = document.getElementById("nextBtn");
   nextBtn.disabled = true;
@@ -206,7 +333,7 @@ function render(){
       const row = document.createElement("label");
       row.className="opt";
       const inp = document.createElement("input"); inp.type="radio"; inp.name=it.id; inp.value=i;
-      const span = document.createElement("span"); span.innerHTML = opt;
+      const span = document.createElement("span"); span.textContent = opt;
       row.appendChild(inp); row.appendChild(span);
       row.addEventListener("click", ()=>{
         const correct = (i===it.correct);
@@ -215,11 +342,12 @@ function render(){
         fb.className = "fb " + (correct? "ok":"bad");
         Array.from(wrap.querySelectorAll("label.opt input")).forEach(el=>el.disabled=true);
         if(!(it.id in state.done)){
-          state.points += correct ? 1 : 0; // v4 scoring
+          state.points += correct ? 1 : 0;
           state.done[it.id] = correct? "full":"none";
           save();
         }
         nextBtn.disabled = false;
+        setHeader();
       });
       wrap.appendChild(row);
     });
@@ -229,7 +357,7 @@ function render(){
     const buttons = document.createElement("div"); buttons.style.display="flex"; buttons.style.gap="10px";
     const bT = document.createElement("button"); bT.textContent="Stimmt";
     const bF = document.createElement("button"); bF.textContent="Stimmt nicht"; bF.className="secondary";
-    const st = document.createElement("div"); st.className="subtitle"; st.innerHTML = it.question;
+    const st = document.createElement("div"); st.className="subtitle"; st.textContent = it.question;
     document.getElementById("question").innerHTML = ""; document.getElementById("question").appendChild(st);
     [bT,bF].forEach(btn=>{
       btn.addEventListener("click", ()=>{
@@ -238,17 +366,18 @@ function render(){
         fb.className = "fb " + (correct? "ok":"bad");
         bT.disabled = bF.disabled = true;
         if(!(it.id in state.done)){
-          state.points += correct ? 1 : 0; // v4 scoring
+          state.points += correct ? 1 : 0;
           state.done[it.id] = correct? "full":"none";
           save();
         }
         nextBtn.disabled = false;
+        setHeader();
       });
     });
     buttons.appendChild(bT); buttons.appendChild(bF);
     wrap.appendChild(buttons);
   }
-  setBar();
+  setHeader();
 }
 
 document.getElementById("nextBtn").addEventListener("click", ()=>{
