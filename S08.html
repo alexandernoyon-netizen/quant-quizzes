@@ -3,42 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>QUANT_TEMPLATE_v4 – Interaktives Quiz (Simple Scoring)</title>
-<!--
-===============================================================================
-TEMPLATE: QUANT_TEMPLATE_v4 (Simple Scoring, 2025-08)
-PURPOSE:  Reusable interactive quiz for any course/session.
-
-SCORING:
-- +1 Punkt pro richtige Antwort
-- +0 Punkte bei falscher Antwort
-- Maximalpunkte = Anzahl der Fragen (items.length)
-
-ANZEIGE:
-- "Punkte: X / N" (N = Anzahl der Fragen)
-- "Aufgabe k/N" (k = aktuelle Frage)
-
-TRANSFERFRAGEN:
-- items können ein Feld "transfer:true" enthalten → dann Badge 🧠 TRANSFER
-
-LOCALSTORAGE KEY:
-- Zusammengesetzt aus COURSE_TAG, SESSION_TAG, TEMPLATE_VERSION
-- Damit jede Sitzung unabhängig speichert.
-
-WORKFLOW:
-1) Diese Datei als Template behalten.
-2) Für eine neue Sitzung:
-   - Handout bereitstellen
-   - ChatGPT bitten: "Nutze QUANT_TEMPLATE_v4. Erstelle 12 Fragen: 10 Wiederkäuen (aus Handout), 2 Transfer."
-   - Den generierten Block für `const items = [...]` hier einfügen.
-   - COURSE_TAG und SESSION_TAG oben im Script setzen (z. B. QUANT, S11).
-   - Datei speichern (z. B. `S11.html`) und ins GitHub-Repo hochladen.
-3) Über GitHub Pages abrufbar machen (Repo Settings → Pages).
-
-HINWEIS:
-Dieses Template ist identisch mit der geprüften S11-Version.
-===============================================================================
--->
+<title>QUANT – Deskriptive Statistik I: Lage- und Streuungsmaße</title>
 <style>
   :root{
     --bg:#0b1220; --card:#121826; --muted:#9aa4b2; --text:#eef2f7;
@@ -71,32 +36,19 @@ Dieses Template ist identisch mit der geprüften S11-Version.
   .badge{display:inline-block;font-size:12px;font-weight:800;letter-spacing:.04em;
          padding:2px 8px;border-radius:999px;border:1px solid #334155;color:var(--accent);
          background:rgba(125,211,252,.10)}
-  details{margin-top:6px}
-  details summary{cursor:pointer}
 </style>
 </head>
 <body>
 <div class="shell">
   <header>
     <div>
-      <h1>QUANT_TEMPLATE_v4 • Interaktives Modul</h1>
-      <div class="muted" id="meta">Punkte: <b id="points">0</b> / <b id="maxpoints">0</b> • Aufgabe <b id="idx">1</b>/<b id="total">0</b></div>
-      <details>
-        <summary>Info & Anleitung</summary>
-        <div class="muted">
-          Dieses File ist ein Template. Ersetze die <code>items</code>-Liste im Script unten mit den generierten Fragen (z. B. 10 Wiederkäuen + 2 Transfer).
-          Du kannst <b>COURSE_TAG</b> und <b>SESSION_TAG</b> setzen, damit der <i>localStorage</i>-Schlüssel eindeutig ist.
-          Scoring: <b>+1</b> für richtige Antwort, <b>+0</b> für falsche.
-        </div>
-      </details>
+      <h1>QUANT – Deskriptive Statistik I: Lage- und Streuungsmaße</h1>
+      <div class="muted">Punkte: <b id="pointsLabel">0</b> / <b id="maxLabel">0</b> • Aufgabe <b id="idxLabel">1</b>/<b id="totalLabel">0</b></div>
     </div>
     <div style="min-width:280px">
       <div class="progress"><span id="bar"></span></div>
       <div style="margin-top:8px;display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap">
         <button id="resetBtn" class="secondary" title="Fortschritt löschen und neu starten">Neu starten</button>
-      </div>
-      <div class="muted" style="text-align:right;margin-top:6px">
-        Key: <code id="lskey"></code>
       </div>
     </div>
   </header>
@@ -114,88 +66,263 @@ Dieses Template ist identisch mit der geprüften S11-Version.
 </div>
 
 <script>
-// ================== CONFIG ==================
-const TEMPLATE_VERSION = "v4-simple";
-const COURSE_TAG = "QUANT";    // customize per course
-const SESSION_TAG = "Sxx";     // customize per session
-// ============================================
-
-// =============== ITEMS PLACEHOLDER ===============
-// Replace EVERYTHING between 'BEGIN ITEMS' and 'END ITEMS' with your generated questions.
-/* BEGIN ITEMS */
 const items = [
-  // SAMPLE ITEMS (remove and replace)
   {
-    id:"sample-se-concept",
+    id:"zweck-lage-streuung",
     type:"mc",
-    title:"Standardfehler – Konzept",
-    question:"Was beschreibt der <b>Standardfehler des Mittelwerts</b> am treffendsten?",
+    title:"Zweck von Lage- und Streuungsmaßen",
+    question:"Warum nutzen wir Lage- und Streuungsmaße in der Statistik?",
     options:[
-      "Streuung der Rohwerte in der Stichprobe",
-      "Streuung der Stichprobenmittelwerte um den Populationsmittelwert",
-      "Differenz zwischen Median und Mittelwert",
-      "Messgenauigkeit"
+      "Um Hypothesen zu beweisen",
+      "Um große Datenmengen kompakt zu beschreiben",
+      "Um nur Ausreißer zu identifizieren",
+      "Um die Theorie zu testen"
     ],
     correct:1,
     feedback:[
-      "Das ist die Standardabweichung der Rohwerte.",
-      "Richtig: SE = Streuung der Mittelwerte um μ.",
-      "Lagemaß-Vergleich, nicht SE.",
-      "Reliabilität, nicht SE."
-    ],
-    transfer:false
+      "Nein. Hypothesen werden getestet, nicht bewiesen.",
+      "Richtig. Kennzahlen verdichten komplexe Daten sinnvoll.",
+      "Zu eng. Streuungsmaße zeigen mehr als Ausreißer.",
+      "Nein. Theorieprüfung ist nicht der Zweck dieser Kennzahlen."
+    ]
   },
   {
-    id:"sample-tf-clt",
-    type:"tf",
-    title:"CLT – Form",
-    question:"Bei moderatem n sind Mittelwerte vieler Stichproben annähernd normalverteilt.",
-    correct:true,
-    feedbackTrue:"Richtig – zentraler Grenzwertsatz.",
-    feedbackFalse:"Falsch – genau das sagt der CLT.",
-    transfer:false
-  },
-  {
-    id:"sample-transfer-n-se",
+    id:"mw-definition",
     type:"mc",
-    title:"🧪 Transfer: Effekt von n auf SE",
-    question:"n wird verdoppelt. Wie verändert sich der SE (idealisiert)?",
-    options:["halbiert sich","bleibt gleich","verkleinert sich um √2","verdoppelt sich"],
+    title:"Arithmetisches Mittel – Definition",
+    question:"Wie wird das arithmetische Mittel berechnet?",
+    options:[
+      "Häufigster Wert in den Daten",
+      "Mittlerer Wert der sortierten Datenreihe",
+      "Summe aller Werte geteilt durch die Anzahl",
+      "Größter minus kleinster Wert"
+    ],
     correct:2,
-    feedback:["Nicht genau.","Nein.","Richtig: SE ∝ 1/√n.","Falsch."],
+    feedback:[
+      "Nein. Das ist der Modus.",
+      "Nein. Das ist der Median.",
+      "Richtig. Das ist die Definition des Mittelwerts.",
+      "Nein. Das ist die Spannweite."
+    ]
+  },
+  {
+    id:"mw-nachteil",
+    type:"mc",
+    title:"Arithmetisches Mittel – Nachteil",
+    question:"Was ist der zentrale Nachteil des arithmetischen Mittels?",
+    options:[
+      "Schwer zu berechnen",
+      "Unverständlich für Laien",
+      "Sehr anfällig für Ausreißer",
+      "Nur bei kategorialen Daten nutzbar"
+    ],
+    correct:2,
+    feedback:[
+      "Nein. Rechenaufwand ist nicht das Problem.",
+      "Nein. Es ist meist gut verständlich.",
+      "Richtig. Ausreißer ziehen den Mittelwert stark.",
+      "Nein. Kategoriale Daten passen nicht zum Mittelwert."
+    ]
+  },
+  {
+    id:"median-eigenschaft",
+    type:"mc",
+    title:"Median – Eigenschaft",
+    question:"Wofür ist der Median besonders geeignet?",
+    options:[
+      "Für streng symmetrische Verteilungen",
+      "Für schiefe Verteilungen mit Ausreißern",
+      "Für Nominalskalen",
+      "Für sehr kleine Stichproben"
+    ],
+    correct:1,
+    feedback:[
+      "Nicht speziell. In Symmetrie liegen alle Maße nah beisammen.",
+      "Richtig. Median ist robust gegenüber Ausreißern.",
+      "Nein. Bei Nominaldaten ist der Modus sinnvoll.",
+      "Nicht der Hauptpunkt. Robustheit bezieht sich auf Ausreißer."
+    ]
+  },
+  {
+    id:"modus-niveau",
+    type:"mc",
+    title:"Modus – Anwendungsbereich",
+    question:"In welchem Datenniveau ist der Modus das einzig sinnvolle Lagemaß?",
+    options:[
+      "Nominalskala",
+      "Ordinalskala",
+      "Intervallskala",
+      "Ratioskala"
+    ],
+    correct:0,
+    feedback:[
+      "Richtig. Bei Kategorien ist nur der Modus sinnvoll.",
+      "Nein. Ordinal erlaubt auch Median.",
+      "Nein. Intervall erlaubt Mittelwert und Median.",
+      "Nein. Verhältnis erlaubt Mittelwert und Median."
+    ]
+  },
+  {
+    id:"vergleich-lagemasse",
+    type:"mc",
+    title:"Vergleich der Lagemaße",
+    question:"Was gilt in einer symmetrischen Verteilung?",
+    options:[
+      "Mittelwert < Median",
+      "Mittelwert = Median = Modus",
+      "Nur der Median ist sinnvoll",
+      "Nur der Modus ist stabil"
+    ],
+    correct:1,
+    feedback:[
+      "Nicht allgemein. Bei Symmetrie sind sie gleich.",
+      "Richtig. Bei Symmetrie fallen die Maße zusammen.",
+      "Nein. Auch Mittelwert ist sinnvoll.",
+      "Nein. Das ist nicht korrekt."
+    ]
+  },
+  {
+    id:"spannweite-def",
+    type:"mc",
+    title:"Spannweite – Definition",
+    question:"Wie wird die Spannweite berechnet?",
+    options:[
+      "Maximum minus Minimum",
+      "Mittelwert der Daten",
+      "Mittlere quadrierte Abweichung",
+      "Wurzel der Varianz"
+    ],
+    correct:0,
+    feedback:[
+      "Richtig. Einfaches, aber grobes Streuungsmaß.",
+      "Nein. Das ist der Mittelwert.",
+      "Nein. Das ist die Varianz.",
+      "Nein. Das ist die Standardabweichung."
+    ]
+  },
+  {
+    id:"varianz-def",
+    type:"mc",
+    title:"Varianz – Definition",
+    question:"Was misst die Varianz?",
+    options:[
+      "Den häufigsten Wert",
+      "Den mittleren quadratischen Abstand vom Mittelwert",
+      "Den Unterschied von Median und Modus",
+      "Den größten Wert im Datensatz"
+    ],
+    correct:1,
+    feedback:[
+      "Nein. Das ist der Modus.",
+      "Richtig. Das ist die Definition der Varianz.",
+      "Nein. Das ist kein Standardmaß.",
+      "Nein. Das ist einfach das Maximum."
+    ]
+  },
+  {
+    id:"sd-bedeutung",
+    type:"mc",
+    title:"Standardabweichung – Bedeutung",
+    question:"Was gibt die Standardabweichung an?",
+    options:[
+      "Den durchschnittlichen Abstand der Werte vom Mittelwert",
+      "Den mittleren Wert der Daten",
+      "Die Zahl der Ausreißer",
+      "Den Median der Daten"
+    ],
+    correct:0,
+    feedback:[
+      "Richtig. Sie ist die Wurzel der Varianz und hat die Einheit der Daten.",
+      "Nein. Das ist der Mittelwert.",
+      "Nein. Ausreißerzahl wird so nicht bestimmt.",
+      "Nein. Das ist der Median."
+    ]
+  },
+  {
+    id:"bessel",
+    type:"mc",
+    title:"Bessel-Korrektur",
+    question:"Warum wird in der Varianzformel bei Stichproben n-1 im Nenner verwendet?",
+    options:[
+      "Um die Berechnung zu vereinfachen",
+      "Damit die Varianz immer kleiner wird",
+      "Damit die Stichprobenvarianz ein unverzerrter Schätzer ist",
+      "Damit Ausreißer nicht berücksichtigt werden"
+    ],
+    correct:2,
+    feedback:[
+      "Nein. Rechenvereinfachung ist nicht der Grund.",
+      "Nein. Ziel ist Unverzerrtheit, nicht Verkleinerung.",
+      "Richtig. n-1 korrigiert die Verzerrung der Stichprobenvarianz.",
+      "Nein. Ausreißer bleiben Bestandteil der Berechnung."
+    ]
+  },
+  {
+    id:"transfer-mw-vs-median",
+    type:"mc",
+    title:"🧠 Transfer – Mittelwert vs. Median",
+    question:"In einem Datensatz zu Einkommen liegt ein Extremwert (1 Mio. €) vor. Welches Lagemaß ist aussagekräftiger?",
+    options:[
+      "Mittelwert",
+      "Median",
+      "Modus",
+      "Spannweite"
+    ],
+    correct:1,
+    feedback:[
+      "Nein. Der Mittelwert wird vom Ausreißer stark gezogen.",
+      "Richtig. Der Median ist robust gegenüber Ausreißern.",
+      "Nein. Der Modus sagt zur Lage hier wenig aus.",
+      "Nein. Spannweite misst nur Extremabstand."
+    ],
+    transfer:true
+  },
+  {
+    id:"transfer-gleicher-mw",
+    type:"mc",
+    title:"🧠 Transfer – gleiche Mittelwerte, unterschiedliche Streuung",
+    question:"Zwei Gruppen haben denselben Mittelwert (50), aber Standardabweichungen von 1 und 30. Was folgt daraus?",
+    options:[
+      "Beide Gruppen sind identisch verteilt",
+      "Die Mittelwerte reichen zur Beschreibung völlig aus",
+      "Die Gruppen unterscheiden sich stark in der Streuung",
+      "Die Standardabweichung ist bedeutungslos"
+    ],
+    correct:2,
+    feedback:[
+      "Nein. Die Streuungen sind sehr unterschiedlich.",
+      "Nein. Ohne Streuung fehlt entscheidende Information.",
+      "Richtig. Gleiche Lage, aber stark unterschiedliche Varianz.",
+      "Nein. Die Standardabweichung ist zentral für die Beschreibung.",
+    ],
     transfer:true
   }
 ];
-/* END ITEMS */
 
-// Derived totals
 const TOTAL_ITEMS = items.length;
+const LS_KEY = "s04_step_state_v4_lage_streuung";
 
-// Storage key
-const LS_KEY = `quiz_state_${COURSE_TAG}_${SESSION_TAG}_${TEMPLATE_VERSION}`;
-document.getElementById("lskey").textContent = LS_KEY;
-
-// State
 let state = JSON.parse(localStorage.getItem(LS_KEY) || "{}");
 if(!state.idx && state.idx!==0){ state = { idx:0, points:0, done:{} }; }
 
 function save(){ localStorage.setItem(LS_KEY, JSON.stringify(state)); }
-function setBar(){
+
+function setHeader(){
   const pct = Math.round((state.idx)/TOTAL_ITEMS*100);
   document.getElementById("bar").style.width = pct+"%";
-  document.getElementById("points").textContent = state.points;
-  document.getElementById("maxpoints").textContent = TOTAL_ITEMS;
-  document.getElementById("idx").textContent = Math.min(state.idx+1, TOTAL_ITEMS);
-  document.getElementById("total").textContent = TOTAL_ITEMS;
+  document.getElementById("pointsLabel").textContent = state.points;
+  document.getElementById("maxLabel").textContent = TOTAL_ITEMS;
+  document.getElementById("idxLabel").textContent = Math.min(state.idx+1, TOTAL_ITEMS);
+  document.getElementById("totalLabel").textContent = TOTAL_ITEMS;
 }
 
 function render(){
   const it = items[state.idx];
-  document.getElementById("title").innerHTML = `${state.idx+1}. ${it.title} ${it.transfer ? '<span class="badge" title="Transferfrage: neues Problem auf Basis des Gelernten">🧠 TRANSFER</span>' : ""}`;
-  document.getElementById("question").innerHTML = it.question;
+  document.getElementById("title").innerHTML = `${state.idx+1}. ${it.title} ${it.transfer ? '<span class="badge">🧠 TRANSFER</span>' : ""}`;
   const wrap = document.getElementById("options");
-  wrap.innerHTML = "";
-  const fb = document.getElementById("feedback"); fb.textContent=""; fb.className="fb";
+  const fb = document.getElementById("feedback");
+  document.getElementById("question").textContent = it.question;
+  wrap.innerHTML = ""; fb.textContent=""; fb.className="fb";
 
   const nextBtn = document.getElementById("nextBtn");
   nextBtn.disabled = true;
@@ -206,7 +333,7 @@ function render(){
       const row = document.createElement("label");
       row.className="opt";
       const inp = document.createElement("input"); inp.type="radio"; inp.name=it.id; inp.value=i;
-      const span = document.createElement("span"); span.innerHTML = opt;
+      const span = document.createElement("span"); span.textContent = opt;
       row.appendChild(inp); row.appendChild(span);
       row.addEventListener("click", ()=>{
         const correct = (i===it.correct);
@@ -215,11 +342,12 @@ function render(){
         fb.className = "fb " + (correct? "ok":"bad");
         Array.from(wrap.querySelectorAll("label.opt input")).forEach(el=>el.disabled=true);
         if(!(it.id in state.done)){
-          state.points += correct ? 1 : 0; // v4 scoring
+          state.points += correct ? 1 : 0;
           state.done[it.id] = correct? "full":"none";
           save();
         }
         nextBtn.disabled = false;
+        setHeader();
       });
       wrap.appendChild(row);
     });
@@ -229,7 +357,7 @@ function render(){
     const buttons = document.createElement("div"); buttons.style.display="flex"; buttons.style.gap="10px";
     const bT = document.createElement("button"); bT.textContent="Stimmt";
     const bF = document.createElement("button"); bF.textContent="Stimmt nicht"; bF.className="secondary";
-    const st = document.createElement("div"); st.className="subtitle"; st.innerHTML = it.question;
+    const st = document.createElement("div"); st.className="subtitle"; st.textContent = it.question;
     document.getElementById("question").innerHTML = ""; document.getElementById("question").appendChild(st);
     [bT,bF].forEach(btn=>{
       btn.addEventListener("click", ()=>{
@@ -238,17 +366,18 @@ function render(){
         fb.className = "fb " + (correct? "ok":"bad");
         bT.disabled = bF.disabled = true;
         if(!(it.id in state.done)){
-          state.points += correct ? 1 : 0; // v4 scoring
+          state.points += correct ? 1 : 0;
           state.done[it.id] = correct? "full":"none";
           save();
         }
         nextBtn.disabled = false;
+        setHeader();
       });
     });
     buttons.appendChild(bT); buttons.appendChild(bF);
     wrap.appendChild(buttons);
   }
-  setBar();
+  setHeader();
 }
 
 document.getElementById("nextBtn").addEventListener("click", ()=>{
