@@ -3,42 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>QUANT_TEMPLATE_v4 – Interaktives Quiz (Simple Scoring)</title>
-<!--
-===============================================================================
-TEMPLATE: QUANT_TEMPLATE_v4 (Simple Scoring, 2025-08)
-PURPOSE:  Reusable interactive quiz for any course/session.
-
-SCORING:
-- +1 Punkt pro richtige Antwort
-- +0 Punkte bei falscher Antwort
-- Maximalpunkte = Anzahl der Fragen (items.length)
-
-ANZEIGE:
-- "Punkte: X / N" (N = Anzahl der Fragen)
-- "Aufgabe k/N" (k = aktuelle Frage)
-
-TRANSFERFRAGEN:
-- items können ein Feld "transfer:true" enthalten → dann Badge 🧠 TRANSFER
-
-LOCALSTORAGE KEY:
-- Zusammengesetzt aus COURSE_TAG, SESSION_TAG, TEMPLATE_VERSION
-- Damit jede Sitzung unabhängig speichert.
-
-WORKFLOW:
-1) Diese Datei als Template behalten.
-2) Für eine neue Sitzung:
-   - Handout bereitstellen
-   - ChatGPT bitten: "Nutze QUANT_TEMPLATE_v4. Erstelle 12 Fragen: 10 Wiederkäuen (aus Handout), 2 Transfer."
-   - Den generierten Block für `const items = [...]` hier einfügen.
-   - COURSE_TAG und SESSION_TAG oben im Script setzen (z. B. QUANT, S11).
-   - Datei speichern (z. B. `S11.html`) und ins GitHub-Repo hochladen.
-3) Über GitHub Pages abrufbar machen (Repo Settings → Pages).
-
-HINWEIS:
-Dieses Template ist identisch mit der geprüften S11-Version.
-===============================================================================
--->
+<title>QUANT – Messqualität: Interaktives Modul</title>
 <style>
   :root{
     --bg:#0b1220; --card:#121826; --muted:#9aa4b2; --text:#eef2f7;
@@ -71,32 +36,19 @@ Dieses Template ist identisch mit der geprüften S11-Version.
   .badge{display:inline-block;font-size:12px;font-weight:800;letter-spacing:.04em;
          padding:2px 8px;border-radius:999px;border:1px solid #334155;color:var(--accent);
          background:rgba(125,211,252,.10)}
-  details{margin-top:6px}
-  details summary{cursor:pointer}
 </style>
 </head>
 <body>
 <div class="shell">
   <header>
     <div>
-      <h1>QUANT_TEMPLATE_v4 • Interaktives Modul</h1>
-      <div class="muted" id="meta">Punkte: <b id="points">0</b> / <b id="maxpoints">0</b> • Aufgabe <b id="idx">1</b>/<b id="total">0</b></div>
-      <details>
-        <summary>Info & Anleitung</summary>
-        <div class="muted">
-          Dieses File ist ein Template. Ersetze die <code>items</code>-Liste im Script unten mit den generierten Fragen (z. B. 10 Wiederkäuen + 2 Transfer).
-          Du kannst <b>COURSE_TAG</b> und <b>SESSION_TAG</b> setzen, damit der <i>localStorage</i>-Schlüssel eindeutig ist.
-          Scoring: <b>+1</b> für richtige Antwort, <b>+0</b> für falsche.
-        </div>
-      </details>
+      <h1>QUANT – Messqualität: Objektivität, Validität & Reliabilität</h1>
+      <div class="muted">Punkte: <b id="pointsLabel">0</b> / <b id="maxLabel">0</b> • Aufgabe <b id="idxLabel">1</b>/<b id="totalLabel">0</b></div>
     </div>
     <div style="min-width:280px">
       <div class="progress"><span id="bar"></span></div>
       <div style="margin-top:8px;display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap">
         <button id="resetBtn" class="secondary" title="Fortschritt löschen und neu starten">Neu starten</button>
-      </div>
-      <div class="muted" style="text-align:right;margin-top:6px">
-        Key: <code id="lskey"></code>
       </div>
     </div>
   </header>
@@ -114,88 +66,263 @@ Dieses Template ist identisch mit der geprüften S11-Version.
 </div>
 
 <script>
-// ================== CONFIG ==================
-const TEMPLATE_VERSION = "v4-simple";
-const COURSE_TAG = "QUANT";    // customize per course
-const SESSION_TAG = "Sxx";     // customize per session
-// ============================================
-
-// =============== ITEMS PLACEHOLDER ===============
-// Replace EVERYTHING between 'BEGIN ITEMS' and 'END ITEMS' with your generated questions.
-/* BEGIN ITEMS */
 const items = [
-  // SAMPLE ITEMS (remove and replace)
   {
-    id:"sample-se-concept",
+    id:"gk-why",
     type:"mc",
-    title:"Standardfehler – Konzept",
-    question:"Was beschreibt der <b>Standardfehler des Mittelwerts</b> am treffendsten?",
+    title:"Messqualität – Grundverständnis",
+    question:"Warum sind Gütekriterien in der empirischen Forschung zentral?",
     options:[
-      "Streuung der Rohwerte in der Stichprobe",
-      "Streuung der Stichprobenmittelwerte um den Populationsmittelwert",
-      "Differenz zwischen Median und Mittelwert",
-      "Messgenauigkeit"
+      "Sie sichern die Vergleichbarkeit von Ergebnissen zwischen Studien und Erhebungszeitpunkten.",
+      "Sie liefern einen Rahmen zur Qualitätsbeurteilung von Messungen.",
+      "Sie sind vor allem für Laborexperimente relevant.",
+      "Sie entscheiden, welche Theorie wahr ist."
     ],
     correct:1,
     feedback:[
-      "Das ist die Standardabweichung der Rohwerte.",
-      "Richtig: SE = Streuung der Mittelwerte um μ.",
-      "Lagemaß-Vergleich, nicht SE.",
-      "Reliabilität, nicht SE."
-    ],
-    transfer:false
+      "Teilwahr, aber zu eng: Vergleichbarkeit ist eine Folge, nicht der Kernzweck.",
+      "Richtig. Gütekriterien strukturieren die Qualitätsprüfung von Messungen.",
+      "Nein. Sie gelten für alle empirischen Designs, nicht nur Labor.",
+      "Nein. Gütekriterien bewerten Messqualität, nicht Theorienwahrheit."
+    ]
   },
   {
-    id:"sample-tf-clt",
-    type:"tf",
-    title:"CLT – Form",
-    question:"Bei moderatem n sind Mittelwerte vieler Stichproben annähernd normalverteilt.",
-    correct:true,
-    feedbackTrue:"Richtig – zentraler Grenzwertsatz.",
-    feedbackFalse:"Falsch – genau das sagt der CLT.",
-    transfer:false
-  },
-  {
-    id:"sample-transfer-n-se",
+    id:"obj-def",
     type:"mc",
-    title:"🧪 Transfer: Effekt von n auf SE",
-    question:"n wird verdoppelt. Wie verändert sich der SE (idealisiert)?",
-    options:["halbiert sich","bleibt gleich","verkleinert sich um √2","verdoppelt sich"],
+    title:"Objektivität – Definition",
+    question:"Was bedeutet <b>Objektivität</b> einer Messung?",
+    options:[
+      "Ergebnisse hängen nicht von der durchführenden Person ab.",
+      "Ergebnisse sind frei von Zufallsfehlern.",
+      "Ergebnisse stimmen mit der Theorie überein.",
+      "Ergebnisse sind über Jahrzehnte identisch."
+    ],
+    correct:0,
+    feedback:[
+      "Richtig. Objektivität = Unabhängigkeit vom Durchführenden/Auswertenden.",
+      "Nein. Das wäre Reliabilität (Zufallseinflüsse).",
+      "Nein. Das gehört zur Validität (misst es das Richtige?).",
+      "Nein. Zeitstabilität ist Retest-Frage, nicht Definition von Objektivität."
+    ]
+  },
+  {
+    id:"obj-facets",
+    type:"mc",
+    title:"Objektivität – Facetten",
+    question:"Welche <b>drei</b> Facetten gehören zur Objektivität?",
+    options:[
+      "Durchführungs-, Auswertungs- und Interpretationsobjektivität",
+      "Inhalts-, Kriteriums- und Konstruktobjektivität",
+      "Retest-, Paralleltest- und Split-Half-Objektivität",
+      "Interne, externe und ökologische Objektivität"
+    ],
+    correct:0,
+    feedback:[
+      "Richtig. Das sind die klassischen Objektivitätsfacetten.",
+      "Nein. Das sind Validitätsarten, nicht Objektivität.",
+      "Nein. Das sind Reliabilitätskonzepte.",
+      "Nein. So werden Objektivitätsfacetten nicht klassifiziert."
+    ]
+  },
+  {
+    id:"val-core",
+    type:"mc",
+    title:"Validität – Kernfrage",
+    question:"Was prüft <b>Validität</b>?",
+    options:[
+      "Ob die Skala stabil über die Zeit ist",
+      "Ob die Skala das misst, <i>was</i> sie messen soll",
+      "Ob verschiedene Testversionen gleich sind",
+      "Ob die Skala ohne Ausreißer auskommt"
+    ],
+    correct:1,
+    feedback:[
+      "Nein. Zeitstabilität = Retest-Reliabilität.",
+      "Richtig. Validität = inhaltliche/konzeptuelle Gültigkeit.",
+      "Nein. Das ist Paralleltest-Reliabilität.",
+      "Nein. Ausreißer sind Datenqualität, nicht Validitätsdefinition."
+    ]
+  },
+  {
+    id:"val-content",
+    type:"mc",
+    title:"Validität – Inhaltsvalidität",
+    question:"<b>Inhaltsvalidität</b> liegt vor, wenn …",
+    options:[
+      "… die Skala alle relevanten Aspekte des Konstrukts abdeckt.",
+      "… die Skala mit externen Kriterien korreliert.",
+      "… die Skala mit Theorievorhersagen übereinstimmt.",
+      "… zwei Testversionen gleichwertig sind."
+    ],
+    correct:0,
+    feedback:[
+      "Richtig. Vollständige, theoriefundierte Abdeckung des Inhaltsbereichs.",
+      "Nein. Das wäre Kriteriumsvalidität.",
+      "Nein. Das zielt auf Konstruktvalidität/konvergente Evidenz.",
+      "Nein. Das ist Paralleltest-Reliabilität."
+    ]
+  },
+  {
+    id:"rel-overview",
+    type:"mc",
+    title:"Reliabilität – Überblick",
+    question:"Welche Aussage zur <b>Reliabilität</b> ist korrekt?",
+    options:[
+      "Reliabilität = „misst das Richtige“.",
+      "Reliabilität ist unabhängig von Objektivität.",
+      "Reliabilität = „misst zuverlässig/präzise“.",
+      "Reliabilität wird nur in Experimenten benötigt."
+    ],
     correct:2,
-    feedback:["Nicht genau.","Nein.","Richtig: SE ∝ 1/√n.","Falsch."],
+    feedback:[
+      "Nein. „Misst das Richtige“ = Validität.",
+      "Nein. Geringe Objektivität kann Reliabilität beeinträchtigen.",
+      "Richtig. Reliabilität bezeichnet Messpräzision/Zuverlässigkeit.",
+      "Nein. Sie ist in allen Designs relevant."
+    ]
+  },
+  {
+    id:"rel-retest",
+    type:"mc",
+    title:"Reliabilität – Test-Retest",
+    question:"<b>Test-Retest-Reliabilität</b> bedeutet …",
+    options:[
+      "… Korrelation zwischen erster und zweiter Testhälfte.",
+      "… Übereinstimmung zweier gleichwertiger Testformen.",
+      "… Stabilität der Ergebnisse über Zeitpunkte hinweg.",
+      "… Mittelwert aller Item–Gesamt–Korrelationen."
+    ],
+    correct:2,
+    feedback:[
+      "Nein. Das ist Split-Half-Reliabilität.",
+      "Nein. Das ist Paralleltest-Reliabilität.",
+      "Richtig. Retest misst zeitliche Stabilität.",
+      "Nein. Das ist keine Standarddefinition."
+    ]
+  },
+  {
+    id:"alpha-core",
+    type:"mc",
+    title:"Cronbachs Alpha – Einordnung",
+    question:"Was misst <b>Cronbachs Alpha (α)</b> primär?",
+    options:[
+      "Stabilität über Zeit",
+      "Interne Konsistenz der Items",
+      "Kriteriumsvalidität",
+      "Durchführungsobjektivität"
+    ],
+    correct:1,
+    feedback:[
+      "Nein. Zeitstabilität = Retest.",
+      "Richtig. α schätzt die interne Konsistenz.",
+      "Nein. Das ist Validität.",
+      "Nein. Objektivität ist anderes Gütekriterium."
+    ]
+  },
+  {
+    id:"alpha-threshold",
+    type:"mc",
+    title:"Cronbachs Alpha – Schwellen",
+    question:"Welche Einordnung passt zu <b>α = .84</b>?",
+    options:[
+      "ungenügend",
+      "grenzwertig",
+      "akzeptabel",
+      "gut"
+    ],
+    correct:3,
+    feedback:[
+      "Nein. .84 ist deutlich über minimalen Schwellen.",
+      "Nein. Grenzbereich liegt eher um .60–.70 (kontextabhängig).",
+      "Teils okay, aber .84 gilt üblicherweise als gut.",
+      "Richtig. α ≈ .8–.9 wird meist als gut bewertet (Kontext beachten)."
+    ]
+  },
+  {
+    id:"alpha-caveat",
+    type:"mc",
+    title:"Cronbachs Alpha – Caveats",
+    question:"Welche Einschränkung gilt für die Interpretation von <b>α</b>?",
+    options:[
+      "α ist bei sehr kurzen Skalen tendenziell niedriger – trotz guter Passung.",
+      "α funktioniert nur für dichotome Items.",
+      "α ist identisch mit Retest-Reliabilität.",
+      "α ist völlig unabhängig von Eindimensionalität."
+    ],
+    correct:0,
+    feedback:[
+      "Richtig. Wenige Items drücken α; Kontext & Itemqualität mitdenken.",
+      "Nein. α gilt für dichotome und polytome Items.",
+      "Nein. Retest ist ein anderes Konzept.",
+      "Nein. Eindimensionalität ist Annahmehintergrund für α."
+    ]
+  },
+  {
+    id:"transfer-multidim",
+    type:"mc",
+    title:"🧠 Transfer – Multidimensionalität erkennen",
+    question:"Ein 4-Item-Index zeigt <b>α = .53</b>. Welche Schlussfolgerung ist am ehesten angemessen?",
+    options:[
+      "Die Items sind perfekt homogen – daher geringe Validität.",
+      "Die Skala ist vermutlich nicht eindimensional – Konzept/Items prüfen.",
+      "Retest-Reliabilität ist automatisch hoch.",
+      "α steigt zwangsläufig, wenn man Items löscht."
+    ],
+    correct:1,
+    feedback:[
+      "Nein. Niedriges α spricht gegen Homogenität.",
+      "Richtig. Prüfe Iteminhalte/Trennschärfen/Struktur.",
+      "Nein. α sagt nichts direkt über Retest aus.",
+      "Nein. Löschen kann α senken oder heben – Analyse nötig."
+    ],
+    transfer:true
+  },
+  {
+    id:"transfer-procedure-3items",
+    type:"mc",
+    title:"🧠 Transfer – Passende Güteprüfung wählen",
+    question:"Du entwickelst eine neue <b>3-Item-Skala</b>. Welches Vorgehen ist am sinnvollsten?",
+    options:[
+      "Inhaltsvalidität sorgfältig prüfen und <i>Vorab-Tests mit Teilnehmenden</i> zur Verständlichkeit durchführen; Reliabilitätsprüfung kann nachgelagert erfolgen.",
+      "Theoretische Fundierung + <i>Vorab-Tests mit Teilnehmenden</i> und Itemanalyse; zusätzlich (wo möglich) Retest/Paralleltest zur Reliabilität.",
+      "Zunächst eine explorative Faktorenanalyse mit kleiner Stichprobe; weitere Gütekriterien später.",
+      "Vor allem einen kurzfristigen Retest durchführen; auf α kann man bei 3 Items verzichten."
+    ],
+    correct:1,
+    feedback:[
+      "Teilweise sinnvoll, aber ohne systematische Reliabilitätsprüfung unvollständig.",
+      "Richtig. Theorie + Vorab-Tests + Itemanalyse, ergänzt um Reliabilität (z. B. Retest/Paralleltest).",
+      "Nein. EFA mit Mini-Stichprobe ist methodisch schwach und ersetzt keine Gütekriterien.",
+      "Nein. α ist auch bei 3 Items interpretierbar – mit Vorsicht; nur Retest reicht nicht."
+    ],
     transfer:true
   }
 ];
-/* END ITEMS */
 
-// Derived totals
 const TOTAL_ITEMS = items.length;
+const LS_KEY = "s04_step_state_v4_simple_messqualitaet";
 
-// Storage key
-const LS_KEY = `quiz_state_${COURSE_TAG}_${SESSION_TAG}_${TEMPLATE_VERSION}`;
-document.getElementById("lskey").textContent = LS_KEY;
-
-// State
 let state = JSON.parse(localStorage.getItem(LS_KEY) || "{}");
 if(!state.idx && state.idx!==0){ state = { idx:0, points:0, done:{} }; }
 
 function save(){ localStorage.setItem(LS_KEY, JSON.stringify(state)); }
-function setBar(){
+
+function setHeader(){
   const pct = Math.round((state.idx)/TOTAL_ITEMS*100);
   document.getElementById("bar").style.width = pct+"%";
-  document.getElementById("points").textContent = state.points;
-  document.getElementById("maxpoints").textContent = TOTAL_ITEMS;
-  document.getElementById("idx").textContent = Math.min(state.idx+1, TOTAL_ITEMS);
-  document.getElementById("total").textContent = TOTAL_ITEMS;
+  document.getElementById("pointsLabel").textContent = state.points;
+  document.getElementById("maxLabel").textContent = TOTAL_ITEMS;
+  document.getElementById("idxLabel").textContent = Math.min(state.idx+1, TOTAL_ITEMS);
+  document.getElementById("totalLabel").textContent = TOTAL_ITEMS;
 }
 
 function render(){
   const it = items[state.idx];
-  document.getElementById("title").innerHTML = `${state.idx+1}. ${it.title} ${it.transfer ? '<span class="badge" title="Transferfrage: neues Problem auf Basis des Gelernten">🧠 TRANSFER</span>' : ""}`;
-  document.getElementById("question").innerHTML = it.question;
+  document.getElementById("title").innerHTML = `${state.idx+1}. ${it.title} ${it.transfer ? '<span class="badge">🧠 TRANSFER</span>' : ""}`;
   const wrap = document.getElementById("options");
-  wrap.innerHTML = "";
-  const fb = document.getElementById("feedback"); fb.textContent=""; fb.className="fb";
+  const fb = document.getElementById("feedback");
+  document.getElementById("question").innerHTML = it.question;
+  wrap.innerHTML = ""; fb.textContent=""; fb.className="fb";
 
   const nextBtn = document.getElementById("nextBtn");
   nextBtn.disabled = true;
@@ -215,11 +342,12 @@ function render(){
         fb.className = "fb " + (correct? "ok":"bad");
         Array.from(wrap.querySelectorAll("label.opt input")).forEach(el=>el.disabled=true);
         if(!(it.id in state.done)){
-          state.points += correct ? 1 : 0; // v4 scoring
+          state.points += correct ? 1 : 0;
           state.done[it.id] = correct? "full":"none";
           save();
         }
         nextBtn.disabled = false;
+        setHeader();
       });
       wrap.appendChild(row);
     });
@@ -238,17 +366,18 @@ function render(){
         fb.className = "fb " + (correct? "ok":"bad");
         bT.disabled = bF.disabled = true;
         if(!(it.id in state.done)){
-          state.points += correct ? 1 : 0; // v4 scoring
+          state.points += correct ? 1 : 0;
           state.done[it.id] = correct? "full":"none";
           save();
         }
         nextBtn.disabled = false;
+        setHeader();
       });
     });
     buttons.appendChild(bT); buttons.appendChild(bF);
     wrap.appendChild(buttons);
   }
-  setBar();
+  setHeader();
 }
 
 document.getElementById("nextBtn").addEventListener("click", ()=>{
