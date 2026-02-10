@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>QUANT – Sitzung 20: Kategoriale Prädiktion & Interaktionen (Interaktives Quiz)</title>
+
+<style>
+  :root{
+    --bg:#0b1220; --card:#121826; --muted:#9aa4b2; --text:#eef2f7;
+    --accent:#7dd3fc; --ok:#34d399; --bad:#f87171; --btn:#38bdf8;
+  }
+  html,body{height:100%}
+  body{margin:0;background:linear-gradient(135deg,#0b1220 0%,#0f172a 100%);color:var(--text);
+       font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+       display:flex;align-items:center;justify-content:center;padding:24px}
+  .shell{width:100%;max-width:940px}
+  header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;gap:16px}
+  h1{font-size:20px;margin:0}
+  .progress{height:10px;background:#1f2937;border-radius:999px;overflow:hidden}
+  .progress span{display:block;height:10px;background:linear-gradient(90deg,#38bdf8,#60a5fa);width:0%}
+  .card{background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.02));
+        border:1px solid #1f2937;border-radius:18px;padding:20px;box-shadow:0 10px 40px rgba(2,6,23,.4)}
+  .title{font-weight:800;font-size:18px;margin-bottom:6px;display:flex;align-items:center;gap:10px}
+  .subtitle{color:var(--muted);margin-bottom:14px}
+  .opt{display:flex;gap:10px;align-items:center;margin:10px 0;padding:12px;border:1px solid #1f2937;border-radius:12px;cursor:pointer}
+  .opt input{margin:0}
+  .opt.correct{border-color:#065f46;background:rgba(16,185,129,.12)}
+  .opt.incorrect{border-color:#7f1d1d;background:rgba(239,68,68,.10)}
+  .btns{display:flex;gap:10px;justify-content:flex-end;margin-top:16px}
+  button{background:var(--btn);color:#0b1220;border:none;border-radius:10px;padding:10px 14px;font-weight:700;cursor:pointer}
+  button.secondary{background:#1f2937;color:var(--text)}
+  button[disabled]{opacity:.4;cursor:not-allowed}
+  .fb{margin-top:10px;font-size:14px}
+  .ok{color:var(--ok)} .bad{color:var(--bad)}
+  .muted{color:var(--muted)}
+  .badge{display:inline-block;font-size:12px;font-weight:800;letter-spacing:.04em;
+         padding:2px 8px;border-radius:999px;border:1px solid #334155;color:var(--accent);
+         background:rgba(125,211,252,.10)}
+  .hint{margin-top:8px;color:var(--muted);font-size:13px}
+  .hint b{color:var(--accent)}
+  details{margin-top:6px}
+  details summary{cursor:pointer}
+  code{color:var(--accent)}
+</style>
+</head>
+
+<body>
+<div class="shell">
+  <header>
+    <div>
+      <h1>QUANT – Sitzung 20: Kategoriale Prädiktion & Interaktionen</h1>
+      <div class="muted" id="meta">Punkte: <b id="points">0</b> / <b id="maxpoints">0</b> • Aufgabe <b id="idx">1</b>/<b id="total">0</b></div>
+      <details>
+        <summary>Info</summary>
+        <div class="muted">
+          Step-by-step Quiz zur Sitzung 20 (Dummy-Codierung & Interaktionen).
+          Scoring: <b>+1</b> pro richtige Antwort, <b>+0</b> bei falscher Antwort.
+          Transferfragen sind mit <span class="badge">🧠 TRANSFER</span> markiert.
+        </div>
+      </details>
+    </div>
+    <div style="min-width:280px">
+      <div class="progress"><span id="bar"></span></div>
+      <div style="margin-top:8px;display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap">
+        <button id="resetBtn" class="secondary" title="Fortschritt löschen und neu starten">Neu starten</button>
+      </div>
+      <div class="muted" style="text-align:right;margin-top:6px">
+        Key: <code id="lskey"></code>
+      </div>
+    </div>
+  </header>
+
+  <div class="card">
+    <div class="title" id="title"></div>
+    <div class="subtitle" id="question"></div>
+    <div id="options"></div>
+    <div class="fb" id="feedback"></div>
+    <div class="hint" id="hint" style="display:none"></div>
+    <div class="btns">
+      <button class="secondary" id="prevBtn">Zurück</button>
+      <button id="nextBtn" disabled>Weiter</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ================== CONFIG ==================
+const TEMPLATE_VERSION = "v4-simple";
+const COURSE_TAG = "QUANT2";
+const SESSION_TAG = "S20";
+// ============================================
+
+// =============== ITEMS ===============
+// Hinweis (für uns): correct = Index der richtigen Antwort (0-basiert!)
+const items = [
+  {
+    id:"reg-predictor-types",
+    type:"mc",
+    title:"Regression & Variablentypen",
+    question:"Welche Art von Prädiktoren kann grundsätzlich in einer linearen Regression verwendet werden?",
+    options:[
+      "Nur metrische Prädiktoren",
+      "Nur kategoriale Prädiktoren",
+      "Sowohl metrische als auch kategoriale Prädiktoren",
+      "Nur kategoriale Prädiktoren mit exakt zwei Kategorien"
+    ],
+    correct:2,
+    feedback:[
+      "Nein. Metrische sind möglich – aber nicht die einzigen.",
+      "Nein. Auch metrische Prädiktoren sind möglich.",
+      "Richtig. Kategoriale Prädiktoren werden über Kodierung (z. B. Dummies) eingebunden.",
+      "Nein. Auch mehr als zwei Kategorien sind möglich (mit k−1 Dummies)."
+    ],
+    transfer:false
+  },
+  {
+    id:"why-not-direct",
+    type:"mc",
+    title:"Problemstellung",
+    question:"Warum können kategoriale Variablen nicht direkt in eine Regressionsgleichung eingesetzt werden?",
+    options:[
+      "Weil Regression nur für Experimente gedacht ist",
+      "Weil kategoriale Variablen keine Varianz haben",
+      "Weil Regression numerische Werte benötigt",
+      "Weil Jamovi kategoriale Variablen nicht verarbeiten kann"
+    ],
+    correct:2,
+    feedback:[
+      "Nein. Regression ist nicht auf Experimente beschränkt.",
+      "Nein. Kategoriale Variablen haben Varianz – aber nicht in metrischen Einheiten.",
+      "Richtig. Das Modell rechnet mit Zahlen – Kategorien müssen kodiert werden.",
+      "Nein. Jamovi kann das, sobald Variablen als Faktoren genutzt werden."
+    ],
+    transfer:false
+  },
+  {
+    id:"dummy-principle",
+    type:"mc",
+    title:"Dummy-Codierung – Grundidee",
+    question:"Was beschreibt das Prinzip der Dummy-Codierung korrekt?",
+    options:[
+      "Jede Kategorie wird durch eine Zahl von 1 bis k codiert",
+      "Alle Kategorien werden in eine einzige Variable umgerechnet",
+      "Für jede Kategorie (außer der Referenz) wird eine 0/1-Variable erstellt",
+      "Jede Kategorie erhält einen eigenen Regressionskoeffizienten und einen eigenen Intercept"
+    ],
+    correct:2,
+    feedback:[
+      "Nein. 1..k-Codierung ist problematisch (impliziert Abstände).",
+      "Nein. Meist braucht man mehrere Indikatorvariablen.",
+      "Richtig. k Kategorien → k−1 Dummies, Referenz bleibt als Basis.",
+      "Nein. Intercept ist i. d. R. gemeinsam; Dummies modellieren Unterschiede zur Referenz."
+    ],
+    transfer:false
+  },
+  {
+    id:"kminus1",
+    type:"mc",
+    title:"Anzahl Dummy-Variablen",
+    question:"Eine kategoriale Variable hat 4 Ausprägungen. Wie viele Dummy-Variablen werden benötigt?",
+    options:["4","2","3","1"],
+    correct:2,
+    feedback:[
+      "Nein. Eine Kategorie ist Referenz und wird nicht als Dummy geführt.",
+      "Nein. Für 4 Kategorien braucht man mehr als 2 Dummies.",
+      "Richtig. k−1 = 3 Dummy-Variablen.",
+      "Nein. 1 Dummy reicht nur bei zwei Kategorien."
+    ],
+    transfer:false
+  },
+  {
+    id:"reference-category",
+    type:"mc",
+    title:"Referenzkategorie",
+    question:"Was gilt für die Referenzkategorie bei Dummy-Codierung?",
+    options:[
+      "Sie erhält den Wert 1 in allen Dummy-Variablen",
+      "Sie wird aus der Analyse ausgeschlossen",
+      "Sie erhält in allen Dummy-Variablen den Wert 0",
+      "Sie wird nur bei signifikanten Effekten berücksichtigt"
+    ],
+    correct:2,
+    feedback:[
+      "Nein. Das wäre das Gegenteil von Referenz.",
+      "Nein. Sie bleibt im Modell – nur implizit.",
+      "Richtig. Referenz = 0 in allen Dummies.",
+      "Nein. Signifikanz steuert nicht, ob eine Kategorie „existiert“."
+    ],
+    transfer:false
+  },
+  {
+    id:"dummy-beta-meaning",
+    type:"mc",
+    title:"Interpretation Dummy-Koeffizient",
+    question:"Was bedeutet ein Regressionskoeffizient für einen Dummy-Prädiktor (z. B. „weiblich“)?",
+    options:[
+      "Den absoluten Mittelwert dieser Gruppe",
+      "Die Varianz innerhalb dieser Gruppe",
+      "Den Unterschied dieser Gruppe zur Referenzgruppe",
+      "Die Wahrscheinlichkeit, zur Kategorie zu gehören"
+    ],
+    correct:2,
+    feedback:[
+      "Nein. Der Gruppenmittelwert ist nicht direkt der Dummy-Koeffizient.",
+      "Nein. Varianz ist etwas anderes als der Regressionskoeffizient.",
+      "Richtig. Dummy-Beta = Unterschied zur Referenz (bei sonst gleichen Bedingungen).",
+      "Nein. Das wäre eher logistische Regression (Wahrscheinlichkeiten)."
+    ],
+    transfer:false
+  },
+  {
+    id:"jamovi-factor",
+    type:"mc",
+    title:"Jamovi – Umsetzung",
+    question:"Was muss man in Jamovi tun, damit kategoriale Variablen korrekt verarbeitet werden?",
+    options:[
+      "Dummy-Variablen manuell berechnen",
+      "Die Variable als metrisch deklarieren",
+      "Die Variable als „nominal“ markieren und als Faktor verwenden",
+      "Die Referenzkategorie per Hand aus dem Datensatz löschen"
+    ],
+    correct:2,
+    feedback:[
+      "Nicht nötig. Jamovi erstellt Kodierungen intern (bei Faktorvariablen).",
+      "Nein. Das wäre inhaltlich falsch.",
+      "Richtig. Nominal/Ordinal korrekt setzen und als Faktor ins Modell geben.",
+      "Nein. Referenz bleibt im Datensatz – sie ist nur die Basis."
+    ],
+    transfer:false
+  },
+  {
+    id:"why-not-all-cats",
+    type:"mc",
+    title:"Output lesen",
+    question:"Warum erscheinen im Regressionsoutput nicht alle Kategorien einer kategorialen Variable?",
+    options:[
+      "Weil Jamovi Kategorien mit wenigen Fällen unterdrückt",
+      "Weil nur signifikante Kategorien angezeigt werden",
+      "Weil eine Kategorie die Referenz ist und nicht explizit berichtet wird",
+      "Weil kategoriale Variablen nur summarisch ausgewiesen werden"
+    ],
+    correct:2,
+    feedback:[
+      "Nein. Kleine Zellen sind problematisch, aber nicht der Standardgrund.",
+      "Nein. Output zeigt auch nicht-signifikante Koeffizienten.",
+      "Richtig. Referenzkategorie ist im Intercept „mit drin“ (implizit).",
+      "Nein. Die einzelnen Dummy-Koeffizienten werden explizit berichtet."
+    ],
+    transfer:false
+  },
+  {
+    id:"anova-reg-eq",
+    type:"mc",
+    title:"ANOVA & Regression",
+    question:"Welche Aussage trifft die Beziehung zwischen ANOVA und Regression korrekt?",
+    options:[
+      "ANOVA ist ein Spezialfall der logistischen Regression",
+      "Regression ersetzt die ANOVA vollständig",
+      "ANOVA und Regression sind mathematisch äquivalent (GLM)",
+      "ANOVA ist rein deskriptiv, Regression inferenzstatistisch"
+    ],
+    correct:2,
+    feedback:[
+      "Nein. Logistische Regression ist etwas anderes (kategoriales Y).",
+      "Nein. Es gibt unterschiedliche Darstellungs- und Interpretationskontexte.",
+      "Richtig. Beide sind Spezialfälle des allgemeinen linearen Modells (GLM/ALM).",
+      "Nein. ANOVA ist ebenso inferenzstatistisch."
+    ],
+    transfer:false
+  },
+  {
+    id:"interaction-definition",
+    type:"mc",
+    title:"Interaktionen – Grundidee",
+    question:"Was beschreibt eine Interaktion in der Regression am treffendsten?",
+    options:[
+      "Zwei Variablen haben beide einen signifikanten Haupteffekt",
+      "Zwei Prädiktoren korrelieren miteinander",
+      "Der Effekt eines Prädiktors hängt vom Wert eines anderen Prädiktors ab",
+      "Eine Variable vermittelt den Effekt einer anderen"
+    ],
+    correct:2,
+    feedback:[
+      "Nein. Haupteffekte ≠ Interaktion.",
+      "Nein. Korrelation zwischen X sagt nichts über Interaktion (Moderation) aus.",
+      "Richtig. Moderation: Effekt von X1 ist abhängig von X2.",
+      "Nein. Das wäre Mediation, nicht Interaktion."
+    ],
+    transfer:false
+  },
+  {
+    id:"interaction-plot",
+    type:"mc",
+    title:"Grafische Interpretation",
+    question:"Wie erkennt man eine Interaktion typischerweise in einer Grafik?",
+    options:[
+      "An parallelen Linien",
+      "An identischen Steigungen",
+      "An sich schneidenden oder unterschiedlich steilen Linien",
+      "An einem fehlenden Haupteffekt"
+    ],
+    correct:2,
+    feedback:[
+      "Nein. Parallele Linien sprechen eher gegen Interaktion.",
+      "Nein. Gleiche Steigungen = keine Interaktion (in der Linie-Logik).",
+      "Richtig. Unterschiedliche Steigungen / Kreuzungen deuten auf Interaktion hin.",
+      "Nein. Interaktionen können mit oder ohne Haupteffekte auftreten."
+    ],
+    transfer:false
+  },
+  {
+    id:"why-not-just-try",
+    type:"mc",
+    title:"Theoriebezug",
+    question:"Warum sollten Interaktionen nicht „einfach ausprobiert“ werden?",
+    options:[
+      "Weil Jamovi Interaktionen nur eingeschränkt berechnet",
+      "Weil Interaktionen die Stichprobe künstlich vergrößern",
+      "Weil Interaktionen theoretisch begründet werden müssen",
+      "Weil Interaktionen immer zu nicht-signifikanten Ergebnissen führen"
+    ],
+    correct:2,
+    feedback:[
+      "Nein. Jamovi kann Interaktionen ganz normal schätzen.",
+      "Nein. Die Stichprobe bleibt gleich; es werden nur mehr Parameter geschätzt.",
+      "Richtig. Sonst drohen Fishing/Overfitting und schwer interpretierbare Modelle.",
+      "Nein. Das hängt von Effekten, n, Varianz, Messung etc. ab."
+    ],
+    transfer:false
+  },
+  {
+    id:"interaction-complexity",
+    type:"mc",
+    title:"Modellstrategie",
+    question:"Warum erhöht das Hinzufügen von Interaktionstermen die Komplexität eines Regressionsmodells?",
+    options:[
+      "Weil Interaktionen die Stichprobe verkleinern",
+      "Weil Interaktionen die abhängige Variable verändern",
+      "Weil zusätzlich bedingte Effekte geschätzt und interpretiert werden müssen",
+      "Weil Interaktionen die Dummy-Codierung ersetzen"
+    ],
+    correct:2,
+    feedback:[
+      "Nein. n bleibt identisch; aber die Parameterzahl steigt.",
+      "Nein. Y bleibt das gleiche Kriterium.",
+      "Richtig. Interaktionen bedeuten: Effekte sind konditional – Interpretation wird mehrstufig.",
+      "Nein. Dummies bleiben relevant; Interaktionen können sogar Dummies einbeziehen."
+    ],
+    transfer:false
+  },
+  {
+    id:"all-dummies-ns",
+    type:"mc",
+    title:"Nicht-signifikante Dummy-Effekte",
+    question:"Was bedeutet es, wenn alle Dummy-Variablen einer kategorialen Variable nicht signifikant sind?",
+    options:[
+      "Die Variable wurde falsch codiert",
+      "Das Modell ist ungültig",
+      "Die Gruppen unterscheiden sich statistisch nicht bedeutsam",
+      "Die Referenzkategorie ist falsch gewählt"
+    ],
+    correct:2,
+    feedback:[
+      "Nicht zwingend. Falsche Kodierung ist möglich, aber nicht die Standardinterpretation.",
+      "Nein. Ein nicht-signifikanter Faktor macht das Modell nicht ungültig.",
+      "Richtig. Im Modell zeigen sich keine klaren Unterschiede zur Referenz (unter Kontrolle anderer Prädiktoren).",
+      "Nicht unbedingt. Andere Referenz ändert Darstellung, nicht die Substanz."
+    ],
+    transfer:false
+  },
+  {
+    id:"transfer-when-interaction",
+    type:"mc",
+    title:"Transfer: Wann Interaktion modellieren?",
+    question:"Welche Situation spricht <b>am ehesten</b> für die Modellierung einer Interaktion?",
+    options:[
+      "Wenn zwei Prädiktoren hoch korreliert sind",
+      "Wenn das R² möglichst groß werden soll",
+      "Wenn es theoretisch plausibel ist, dass ein Effekt je nach Gruppe unterschiedlich ausfällt",
+      "Wenn ein Haupteffekt nicht signifikant ist"
+    ],
+    correct:2,
+    feedback:[
+      "Nein. Korrelation zwischen X ist kein Argument für Interaktion (und kann Multikollinearität bedeuten).",
+      "Nein. „R² maximieren“ ist kein wissenschaftlich sauberes Ziel.",
+      "Richtig. Theorie/Fragestellung → plausible Moderation → Interaktion testen.",
+      "Nein. Nicht-signifikanter Haupteffekt ist kein ausreichender Grund."
+    ],
+    transfer:true,
+    hint:"<b>Tipp:</b> Interaktionen sind keine „Power-Tricks“, sondern Hypothesen über <i>Moderation</i> (Effekte sind abhängig von Kontext/Gruppe)."
+  }
+];
+
+// Totals
+const TOTAL_ITEMS = items.length;
+
+// Storage key
+const LS_KEY = `quiz_state_${COURSE_TAG}_${SESSION_TAG}_${TEMPLATE_VERSION}`;
+document.getElementById("lskey").textContent = LS_KEY;
+
+// State
+let state = JSON.parse(localStorage.getItem(LS_KEY) || "{}");
+if(!state.idx && state.idx!==0){ state = { idx:0, points:0, done:{} }; }
+
+function save(){ localStorage.setItem(LS_KEY, JSON.stringify(state)); }
+
+function setBar(){
+  const pct = Math.round((state.idx)/TOTAL_ITEMS*100);
+  document.getElementById("bar").style.width = pct+"%";
+  document.getElementById("points").textContent = state.points;
+  document.getElementById("maxpoints").textContent = TOTAL_ITEMS;
+  document.getElementById("idx").textContent = Math.min(state.idx+1, TOTAL_ITEMS);
+  document.getElementById("total").textContent = TOTAL_ITEMS;
+}
+
+function render(){
+  const it = items[state.idx];
+
+  document.getElementById("title").innerHTML =
+    `${state.idx+1}. ${it.title} ${it.transfer ? '<span class="badge" title="Transferfrage: neues Problem auf Basis des Gelernten">🧠 TRANSFER</span>' : ""}`;
+
+  document.getElementById("question").innerHTML = it.question;
+
+  const wrap = document.getElementById("options");
+  wrap.innerHTML = "";
+
+  const fb = document.getElementById("feedback");
+  fb.textContent=""; fb.className="fb";
+
+  const hint = document.getElementById("hint");
+  hint.style.display="none";
+  hint.innerHTML="";
+
+  const nextBtn = document.getElementById("nextBtn");
+  nextBtn.disabled = true;
+  document.getElementById("prevBtn").disabled = (state.idx===0);
+
+  it.options.forEach((opt,i)=>{
+    const row = document.createElement("label");
+    row.className="opt";
+    const inp = document.createElement("input"); inp.type="radio"; inp.name=it.id; inp.value=i;
+    const span = document.createElement("span"); span.innerHTML = opt;
+    row.appendChild(inp); row.appendChild(span);
+
+    row.addEventListener("click", ()=>{
+      const correct = (i===it.correct);
+      row.classList.add(correct? "correct":"incorrect");
+
+      fb.textContent = it.feedback[i];
+      fb.className = "fb " + (correct? "ok":"bad");
+
+      Array.from(wrap.querySelectorAll("label.opt input")).forEach(el=>el.disabled=true);
+
+      if(it.transfer && !correct && it.hint){
+        hint.style.display = "block";
+        hint.innerHTML = it.hint;
+      }
+
+      if(!(it.id in state.done)){
+        state.points += correct ? 1 : 0;
+        state.done[it.id] = correct? "full":"none";
+        save();
+      }
+      nextBtn.disabled = false;
+      setBar();
+    });
+
+    wrap.appendChild(row);
+  });
+
+  setBar();
+}
+
+document.getElementById("nextBtn").addEventListener("click", ()=>{
+  if(state.idx < TOTAL_ITEMS-1){ state.idx++; save(); render(); }
+  else {
+    alert(`Geschafft! Punkte: ${state.points} von ${TOTAL_ITEMS}. Du hast alle ${TOTAL_ITEMS} Aufgaben abgeschlossen.`);
+  }
+});
+document.getElementById("prevBtn").addEventListener("click", ()=>{
+  if(state.idx>0){ state.idx--; save(); render(); }
+});
+
+document.getElementById("resetBtn").addEventListener("click", ()=>{
+  if(confirm("Fortschritt wirklich löschen und neu starten?")){
+    localStorage.removeItem(LS_KEY);
+    state = { idx:0, points:0, done:{} };
+    save();
+    render();
+    alert("Zurückgesetzt. Viel Erfolg beim neuen Durchlauf!");
+  }
+});
+
+render();
+</script>
+</body>
+</html>
