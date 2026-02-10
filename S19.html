@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>QUANT – Sitzung 19: Multiple Regression (Interaktives Quiz)</title>
+
+<style>
+  :root{
+    --bg:#0b1220; --card:#121826; --muted:#9aa4b2; --text:#eef2f7;
+    --accent:#7dd3fc; --ok:#34d399; --bad:#f87171; --btn:#38bdf8;
+  }
+  html,body{height:100%}
+  body{margin:0;background:linear-gradient(135deg,#0b1220 0%,#0f172a 100%);color:var(--text);
+       font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+       display:flex;align-items:center;justify-content:center;padding:24px}
+  .shell{width:100%;max-width:940px}
+  header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;gap:16px}
+  h1{font-size:20px;margin:0}
+  .progress{height:10px;background:#1f2937;border-radius:999px;overflow:hidden}
+  .progress span{display:block;height:10px;background:linear-gradient(90deg,#38bdf8,#60a5fa);width:0%}
+  .card{background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.02));
+        border:1px solid #1f2937;border-radius:18px;padding:20px;box-shadow:0 10px 40px rgba(2,6,23,.4)}
+  .title{font-weight:800;font-size:18px;margin-bottom:6px;display:flex;align-items:center;gap:10px}
+  .subtitle{color:var(--muted);margin-bottom:14px}
+  .opt{display:flex;gap:10px;align-items:center;margin:10px 0;padding:12px;border:1px solid #1f2937;border-radius:12px;cursor:pointer}
+  .opt input{margin:0}
+  .opt.correct{border-color:#065f46;background:rgba(16,185,129,.12)}
+  .opt.incorrect{border-color:#7f1d1d;background:rgba(239,68,68,.10)}
+  .btns{display:flex;gap:10px;justify-content:flex-end;margin-top:16px}
+  button{background:var(--btn);color:#0b1220;border:none;border-radius:10px;padding:10px 14px;font-weight:700;cursor:pointer}
+  button.secondary{background:#1f2937;color:var(--text)}
+  button[disabled]{opacity:.4;cursor:not-allowed}
+  .fb{margin-top:10px;font-size:14px}
+  .ok{color:var(--ok)} .bad{color:var(--bad)}
+  .muted{color:var(--muted)}
+  .badge{display:inline-block;font-size:12px;font-weight:800;letter-spacing:.04em;
+         padding:2px 8px;border-radius:999px;border:1px solid #334155;color:var(--accent);
+         background:rgba(125,211,252,.10)}
+  .hint{margin-top:8px;color:var(--muted);font-size:13px}
+  .hint b{color:var(--accent)}
+  details{margin-top:6px}
+  details summary{cursor:pointer}
+  code{color:var(--accent)}
+</style>
+</head>
+
+<body>
+<div class="shell">
+  <header>
+    <div>
+      <h1>QUANT – Sitzung 19: Multiple Regression</h1>
+      <div class="muted" id="meta">Punkte: <b id="points">0</b> / <b id="maxpoints">0</b> • Aufgabe <b id="idx">1</b>/<b id="total">0</b></div>
+      <details>
+        <summary>Info</summary>
+        <div class="muted">
+          Step-by-step Quiz zur Sitzung 19 (Multiple Regression). Scoring: <b>+1</b> pro richtige Antwort, <b>+0</b> bei falscher Antwort.
+          Transferfragen sind mit <span class="badge">🧠 TRANSFER</span> markiert.
+        </div>
+      </details>
+    </div>
+    <div style="min-width:280px">
+      <div class="progress"><span id="bar"></span></div>
+      <div style="margin-top:8px;display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap">
+        <button id="resetBtn" class="secondary" title="Fortschritt löschen und neu starten">Neu starten</button>
+      </div>
+      <div class="muted" style="text-align:right;margin-top:6px">
+        Key: <code id="lskey"></code>
+      </div>
+    </div>
+  </header>
+
+  <div class="card">
+    <div class="title" id="title"></div>
+    <div class="subtitle" id="question"></div>
+    <div id="options"></div>
+    <div class="fb" id="feedback"></div>
+    <div class="hint" id="hint" style="display:none"></div>
+    <div class="btns">
+      <button class="secondary" id="prevBtn">Zurück</button>
+      <button id="nextBtn" disabled>Weiter</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ================== CONFIG ==================
+const TEMPLATE_VERSION = "v4-simple";
+const COURSE_TAG = "QUANT2";
+const SESSION_TAG = "S19";
+// ============================================
+
+// =============== ITEMS ===============
+// Hinweis (für uns): correct = Index der richtigen Antwort (0-basiert!)
+const items = [
+  {
+    id:"mr-core-diff",
+    type:"mc",
+    title:"Grundidee",
+    question:"Was ist der zentrale Unterschied zwischen einfacher und multipler Regression?",
+    options:[
+      "Multiple Regression verwendet eine andere Rechenmethode.",
+      "Multiple Regression hat immer eine andere Zielvariable.",
+      "Multiple Regression betrachtet mehrere Prädiktoren gleichzeitig.",
+      "Multiple Regression ist nur für kategoriale Variablen geeignet."
+    ],
+    correct:2,
+    feedback:[
+      "Nein. Die Logik bleibt lineare Regression (ALM) – nur mit mehr Prädiktoren.",
+      "Nein. Die Zielvariable (Kriterium Y) kann gleich bleiben.",
+      "Richtig. Mehrere X gleichzeitig → gemeinsame Modellierung + Kontrolle.",
+      "Nein. Sie funktioniert auch (und oft vor allem) mit metrischen Prädiktoren."
+    ],
+    transfer:false
+  },
+  {
+    id:"mr-extension",
+    type:"mc",
+    title:"Verständnis",
+    question:"Multiple Regression ist …",
+    options:[
+      "ein völlig neues statistisches Verfahren.",
+      "eine Erweiterung der linearen Regression.",
+      "eine nicht-parametrische Methode.",
+      "nur für große Stichproben geeignet."
+    ],
+    correct:1,
+    feedback:[
+      "Nein. Es ist keine „neue Welt“, sondern ein Ausbau der linearen Regression.",
+      "Richtig. Gleiche Grundidee, aber mehrere Prädiktoren.",
+      "Nein. Klassisch ist sie parametrisch (mit Modellannahmen).",
+      "Nein. Große n hilft (Power/Robustheit), ist aber kein definierendes Merkmal."
+    ],
+    transfer:false
+  },
+  {
+    id:"alm-unchanged",
+    type:"mc",
+    title:"ALM (Allgemeines lineares Modell)",
+    question:"Was ändert sich rechnerisch bei multipler Regression im Vergleich zur einfachen Regression?",
+    options:[
+      "Das statistische Grundmodell ändert sich vollständig.",
+      "Die Testlogik ist grundsätzlich anders.",
+      "Nichts Grundsätzliches – es bleibt das allgemeine lineare Modell.",
+      "Der Fehlerterm (ε) ist nicht mehr Teil des Modells."
+    ],
+    correct:2,
+    feedback:[
+      "Nein. Die Struktur ist weiterhin linear im Parameterraum.",
+      "Nein. Tests auf Modell/Parameter bleiben (F/t).",
+      "Richtig. Es wird „nur“ um weitere Prädiktoren erweitert.",
+      "Nein. ε bleibt zentral: Residuen/Fehler gehören immer dazu."
+    ],
+    transfer:false
+  },
+  {
+    id:"two-perspectives",
+    type:"mc",
+    title:"Perspektiven",
+    question:"Welche zwei zentralen Perspektiven unterscheiden wir bei multipler Regression?",
+    options:[
+      "Deskriptiv vs. Inferenz",
+      "Linear vs. nichtlinear",
+      "Modell-Perspektive und Effekt-Perspektive",
+      "Parametrisch vs. nicht-parametrisch"
+    ],
+    correct:2,
+    feedback:[
+      "Nein. Beides kann inferenzstatistisch sein; das ist nicht die zentrale Unterscheidung hier.",
+      "Nein. Wir bleiben im linearen Modell.",
+      "Richtig. Gesamtmodell (Erklärung) vs. einzelne Effekte (unter Kontrolle).",
+      "Nein. Das ist eine Methodenklassifikation, nicht die Perspektivenlogik."
+    ],
+    transfer:false
+  },
+  {
+    id:"model-perspective",
+    type:"mc",
+    title:"Modell-Perspektive",
+    question:"Worauf liegt der Fokus der <b>Modell-Perspektive</b>?",
+    options:[
+      "Auf dem Effekt einer einzelnen Variable.",
+      "Auf der Erklärungskraft des Gesamtmodells.",
+      "Nur auf p-Werten einzelner Prädiktoren.",
+      "Auf der „besten“ Kontrollvariable."
+    ],
+    correct:1,
+    feedback:[
+      "Nein. Das wäre Effekt-Perspektive.",
+      "Richtig. Gesamtmodell: erklärt es Varianz in Y – und wie gut?",
+      "Nein. Einzel-p-Werte sind nicht die Modellperspektive.",
+      "Nein. Kontrolle ist Mittel zum Zweck, nicht der Fokus."
+    ],
+    transfer:false
+  },
+  {
+    id:"effect-perspective",
+    type:"mc",
+    title:"Effekt-Perspektive",
+    question:"Was interessiert uns in der <b>Effekt-Perspektive</b> primär?",
+    options:[
+      "Wie hoch R² insgesamt ist.",
+      "Der spezifische Effekt einer Variable unter Kontrolle anderer Variablen.",
+      "Nur signifikante Variablen.",
+      "Nur kategoriale Prädiktoren."
+    ],
+    correct:1,
+    feedback:[
+      "Nein. Das gehört zur Modell-Perspektive.",
+      "Richtig. „Unique contribution“: Effekt von X, wenn andere X konstant gehalten werden.",
+      "Nein. Auch Nicht-Signifikanz ist interpretierbar (z. B. Redundanz).",
+      "Nein. Metrisch/kategorial ist beides möglich."
+    ],
+    transfer:false
+  },
+  {
+    id:"why-controls",
+    type:"mc",
+    title:"Kontrollvariablen",
+    question:"Warum nehmen wir Kontrollvariablen ins Modell auf?",
+    options:[
+      "Um R² künstlich zu erhöhen.",
+      "Um das Modell komplexer wirken zu lassen.",
+      "Um Scheinkorrelationen zu vermeiden.",
+      "Weil Jamovi das verlangt."
+    ],
+    correct:2,
+    feedback:[
+      "R² steigt oft, aber das ist nicht der wissenschaftliche Grund.",
+      "Nein. Komplexität ist kein Qualitätskriterium an sich.",
+      "Richtig. Kontrolle reduziert Verzerrung durch Drittvariablen.",
+      "Nein. Software ist egal – die Logik kommt aus der Forschung."
+    ],
+    transfer:false
+  },
+  {
+    id:"spurious-corr",
+    type:"mc",
+    title:"Scheinkorrelation",
+    question:"Was zeigt das Eisverkauf-/Badeunfall-Beispiel?",
+    options:[
+      "Eisverkauf verursacht Badeunfälle.",
+      "Badeunfälle erhöhen den Eisverkauf.",
+      "Ein dritter Faktor kann den scheinbaren Zusammenhang erklären.",
+      "Korrelation ist immer kausal."
+    ],
+    correct:2,
+    feedback:[
+      "Nein. Das ist genau der Kausal-Fehlschluss.",
+      "Nein. Auch das wäre ein Kausal-Fehlschluss.",
+      "Richtig. Z. B. Temperatur beeinflusst beides.",
+      "Nein. Korrelation ≠ Kausalität."
+    ],
+    transfer:false
+  },
+  {
+    id:"simpson",
+    type:"mc",
+    title:"Simpson-Paradox",
+    question:"Was beschreibt das Simpson-Paradox?",
+    options:[
+      "Ein Rechenfehler bei Regressionen.",
+      "Unterschiedliche Ergebnisse in verschiedenen Stichproben.",
+      "Unterschiedliche Zusammenhänge innerhalb von Gruppen vs. Gesamtstichprobe.",
+      "Eine Verletzung der Linearitätsannahme."
+    ],
+    correct:2,
+    feedback:[
+      "Nein. Das ist kein Bug, sondern ein Daten-/Strukturphänomen.",
+      "Zu unspezifisch: Der Kern ist „Aggregation kann das Vorzeichen/den Effekt drehen“.",
+      "Richtig. Aggregation kann einen Zusammenhang verdecken oder umkehren.",
+      "Nein. Kann auch ohne Linearitätsproblem auftreten."
+    ],
+    transfer:false
+  },
+  {
+    id:"dummies",
+    type:"mc",
+    title:"Dummy-Variablen",
+    question:"Wofür werden Dummy-Variablen in der multiplen Regression genutzt?",
+    options:[
+      "Zur Skalierung metrischer Variablen.",
+      "Zur Abbildung kategorialer Prädiktoren.",
+      "Zur Erhöhung der Power.",
+      "Zur Standardisierung."
+    ],
+    correct:1,
+    feedback:[
+      "Nein. Skalierung ist etwas anderes (z. B. Zentrieren).",
+      "Richtig. Kategorien werden in 0/1-Codes übersetzt.",
+      "Nein. Power hängt an n, Effektgröße, Varianz, Modell – nicht an Dummy per se.",
+      "Nein. Standardisierung betrifft z. B. z-Werte/Beta."
+    ],
+    transfer:false
+  },
+  {
+    id:"interpret-order",
+    type:"mc",
+    title:"Interpretation – Reihenfolge",
+    question:"Was prüfst du im ersten Schritt der Ergebnisinterpretation?",
+    options:[
+      "Einzelne b-Koeffizienten.",
+      "Ob das Gesamtmodell überhaupt erklärungskräftig ist.",
+      "Nur den größten Effekt.",
+      "Nur signifikante Prädiktoren."
+    ],
+    correct:1,
+    feedback:[
+      "Das kommt danach (Effekt-Perspektive).",
+      "Richtig. Erst: Trägt das Modell insgesamt etwas bei (z. B. R²/F-Test)?",
+      "Nein. „Größter Effekt“ ohne Kontext ist riskant.",
+      "Nein. Selektives Lesen führt leicht zu Fehlinterpretationen."
+    ],
+    transfer:false
+  },
+  {
+    id:"interpret-variable",
+    type:"mc",
+    title:"Interpretation – Einzelvariable",
+    question:"Welche drei Aspekte gehören zur Interpretation einer einzelnen Variable im Regressionsmodell?",
+    options:[
+      "Richtung, Varianz, Fallzahl",
+      "Richtung, Stärke, Signifikanz",
+      "Mittelwert, Streuung, p-Wert",
+      "Beta, Alpha, Gamma"
+    ],
+    correct:1,
+    feedback:[
+      "Nein. Varianz/Fallzahl sind Kontext, aber nicht die Trias der Interpretation.",
+      "Richtig. Vorzeichen (Richtung), Größe (Stärke), Test (Signifikanz).",
+      "Nein. Mittelwert/Streuung sind deskriptiv; es fehlt die Effektstärke-Logik.",
+      "Nein. Das sind keine passenden Interpretationsdimensionen hier."
+    ],
+    transfer:false
+  },
+  {
+    id:"transfer-nonsig-meaning",
+    type:"mc",
+    title:"Transfer: Nicht signifikant im multiplen Modell",
+    question:"Ein Prädiktor ist im multiplen Modell <b>nicht signifikant</b>. Was bedeutet das am ehesten?",
+    options:[
+      "Die Variable ist falsch gemessen.",
+      "Die Variable ist grundsätzlich irrelevant.",
+      "Die Variable leistet keinen eigenständigen Beitrag zusätzlich zu den anderen Variablen.",
+      "Das gesamte Modell ist unbrauchbar."
+    ],
+    correct:2,
+    feedback:[
+      "Nicht zwingend. Messfehler <i>kann</i> eine Rolle spielen, ist aber nicht die automatische Schlussfolgerung.",
+      "Zu stark. „Nicht signifikant“ heißt nicht „inhaltlich bedeutungslos“.",
+      "Richtig. Unter Kontrolle der anderen X bleibt kein klarer zusätzlicher Beitrag übrig (z. B. Redundanz/Überlappung).",
+      "Nein. Einzelne Nicht-Signifikanz macht das Gesamtmodell nicht automatisch wertlos."
+    ],
+    hint:"<b>Tipp:</b> In multipler Regression zählt oft der <i>unique contribution</i> – was bleibt von X übrig, wenn andere X schon im Modell sind?",
+    transfer:true
+  },
+  {
+    id:"meta-stance",
+    type:"mc",
+    title:"Haltung zur Statistik",
+    question:"Welche Aussage passt am besten zum Fazit der Sitzung?",
+    options:[
+      "Ein hohes R² ist immer das wichtigste Qualitätskriterium.",
+      "Nicht-signifikante Variablen sollte man immer entfernen.",
+      "Statistik ist ein Werkzeug – Interpretation ist entscheidend.",
+      "Je komplexer das Modell, desto besser."
+    ],
+    correct:2,
+    feedback:[
+      "Nein. R² ist hilfreich, aber nicht allein entscheidend (Fragestellung, Bias, Theorie, Plausibilität…).",
+      "Nein. Entfernen kann sinnvoll sein – aber „immer“ ist unseriös.",
+      "Richtig. Zahlen ohne Interpretation sind wertlos – Interpretation ohne sauberes Modell auch.",
+      "Nein. Komplexität kann Overfitting/Unverständlichkeit fördern."
+    ],
+    transfer:false
+  }
+];
+
+// Derived totals
+const TOTAL_ITEMS = items.length;
+
+// Storage key
+const LS_KEY = `quiz_state_${COURSE_TAG}_${SESSION_TAG}_${TEMPLATE_VERSION}`;
+document.getElementById("lskey").textContent = LS_KEY;
+
+// State
+let state = JSON.parse(localStorage.getItem(LS_KEY) || "{}");
+if(!state.idx && state.idx!==0){ state = { idx:0, points:0, done:{} }; }
+
+function save(){ localStorage.setItem(LS_KEY, JSON.stringify(state)); }
+
+function setBar(){
+  const pct = Math.round((state.idx)/TOTAL_ITEMS*100);
+  document.getElementById("bar").style.width = pct+"%";
+  document.getElementById("points").textContent = state.points;
+  document.getElementById("maxpoints").textContent = TOTAL_ITEMS;
+  document.getElementById("idx").textContent = Math.min(state.idx+1, TOTAL_ITEMS);
+  document.getElementById("total").textContent = TOTAL_ITEMS;
+}
+
+function render(){
+  const it = items[state.idx];
+
+  document.getElementById("title").innerHTML =
+    `${state.idx+1}. ${it.title} ${it.transfer ? '<span class="badge" title="Transferfrage: neues Problem auf Basis des Gelernten">🧠 TRANSFER</span>' : ""}`;
+
+  document.getElementById("question").innerHTML = it.question;
+
+  const wrap = document.getElementById("options");
+  wrap.innerHTML = "";
+
+  const fb = document.getElementById("feedback");
+  fb.textContent=""; fb.className="fb";
+
+  const hint = document.getElementById("hint");
+  hint.style.display="none";
+  hint.innerHTML="";
+
+  const nextBtn = document.getElementById("nextBtn");
+  nextBtn.disabled = true;
+  document.getElementById("prevBtn").disabled = (state.idx===0);
+
+  it.options.forEach((opt,i)=>{
+    const row = document.createElement("label");
+    row.className="opt";
+    const inp = document.createElement("input"); inp.type="radio"; inp.name=it.id; inp.value=i;
+    const span = document.createElement("span"); span.innerHTML = opt;
+    row.appendChild(inp); row.appendChild(span);
+
+    row.addEventListener("click", ()=>{
+      const correct = (i===it.correct);
+      row.classList.add(correct? "correct":"incorrect");
+
+      fb.textContent = it.feedback[i];
+      fb.className = "fb " + (correct? "ok":"bad");
+
+      Array.from(wrap.querySelectorAll("label.opt input")).forEach(el=>el.disabled=true);
+
+      if(it.transfer && !correct && it.hint){
+        hint.style.display = "block";
+        hint.innerHTML = it.hint;
+      }
+
+      if(!(it.id in state.done)){
+        state.points += correct ? 1 : 0;
+        state.done[it.id] = correct? "full":"none";
+        save();
+      }
+      nextBtn.disabled = false;
+      setBar();
+    });
+
+    wrap.appendChild(row);
+  });
+
+  setBar();
+}
+
+document.getElementById("nextBtn").addEventListener("click", ()=>{
+  if(state.idx < TOTAL_ITEMS-1){ state.idx++; save(); render(); }
+  else {
+    alert(`Geschafft! Punkte: ${state.points} von ${TOTAL_ITEMS}. Du hast alle ${TOTAL_ITEMS} Aufgaben abgeschlossen.`);
+  }
+});
+document.getElementById("prevBtn").addEventListener("click", ()=>{
+  if(state.idx>0){ state.idx--; save(); render(); }
+});
+
+document.getElementById("resetBtn").addEventListener("click", ()=>{
+  if(confirm("Fortschritt wirklich löschen und neu starten?")){
+    localStorage.removeItem(LS_KEY);
+    state = { idx:0, points:0, done:{} };
+    save();
+    render();
+    alert("Zurückgesetzt. Viel Erfolg beim neuen Durchlauf!");
+  }
+});
+
+render();
+</script>
+</body>
+</html>
