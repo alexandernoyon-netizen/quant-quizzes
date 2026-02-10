@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>QUANT – Sitzung 18: Lineare Regression (Interaktives Quiz)</title>
+
+<style>
+  :root{
+    --bg:#0b1220; --card:#121826; --muted:#9aa4b2; --text:#eef2f7;
+    --accent:#7dd3fc; --ok:#34d399; --bad:#f87171; --btn:#38bdf8;
+  }
+  html,body{height:100%}
+  body{margin:0;background:linear-gradient(135deg,#0b1220 0%,#0f172a 100%);color:var(--text);
+       font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+       display:flex;align-items:center;justify-content:center;padding:24px}
+  .shell{width:100%;max-width:940px}
+  header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;gap:16px}
+  h1{font-size:20px;margin:0}
+  .progress{height:10px;background:#1f2937;border-radius:999px;overflow:hidden}
+  .progress span{display:block;height:10px;background:linear-gradient(90deg,#38bdf8,#60a5fa);width:0%}
+  .card{background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.02));
+        border:1px solid #1f2937;border-radius:18px;padding:20px;box-shadow:0 10px 40px rgba(2,6,23,.4)}
+  .title{font-weight:800;font-size:18px;margin-bottom:6px;display:flex;align-items:center;gap:10px}
+  .subtitle{color:var(--muted);margin-bottom:14px}
+  .opt{display:flex;gap:10px;align-items:center;margin:10px 0;padding:12px;border:1px solid #1f2937;border-radius:12px;cursor:pointer}
+  .opt input{margin:0}
+  .opt.correct{border-color:#065f46;background:rgba(16,185,129,.12)}
+  .opt.incorrect{border-color:#7f1d1d;background:rgba(239,68,68,.10)}
+  .btns{display:flex;gap:10px;justify-content:flex-end;margin-top:16px}
+  button{background:var(--btn);color:#0b1220;border:none;border-radius:10px;padding:10px 14px;font-weight:700;cursor:pointer}
+  button.secondary{background:#1f2937;color:var(--text)}
+  button[disabled]{opacity:.4;cursor:not-allowed}
+  .fb{margin-top:10px;font-size:14px}
+  .ok{color:var(--ok)} .bad{color:var(--bad)}
+  .muted{color:var(--muted)}
+  .badge{display:inline-block;font-size:12px;font-weight:800;letter-spacing:.04em;
+         padding:2px 8px;border-radius:999px;border:1px solid #334155;color:var(--accent);
+         background:rgba(125,211,252,.10)}
+  .hint{margin-top:8px;color:var(--muted);font-size:13px}
+  .hint b{color:var(--accent)}
+  details{margin-top:6px}
+  details summary{cursor:pointer}
+  code{color:var(--accent)}
+</style>
+</head>
+
+<body>
+<div class="shell">
+  <header>
+    <div>
+      <h1>QUANT – Sitzung 18: Lineare Regression</h1>
+      <div class="muted" id="meta">Punkte: <b id="points">0</b> / <b id="maxpoints">0</b> • Aufgabe <b id="idx">1</b>/<b id="total">0</b></div>
+      <details>
+        <summary>Info</summary>
+        <div class="muted">
+          Step-by-step Quiz zur Sitzung 18 (Lineare Regression). Scoring: <b>+1</b> pro richtige Antwort, <b>+0</b> bei falscher Antwort.
+          Transferfragen sind mit <span class="badge">🧠 TRANSFER</span> markiert.
+        </div>
+      </details>
+    </div>
+    <div style="min-width:280px">
+      <div class="progress"><span id="bar"></span></div>
+      <div style="margin-top:8px;display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap">
+        <button id="resetBtn" class="secondary" title="Fortschritt löschen und neu starten">Neu starten</button>
+      </div>
+      <div class="muted" style="text-align:right;margin-top:6px">
+        Key: <code id="lskey"></code>
+      </div>
+    </div>
+  </header>
+
+  <div class="card">
+    <div class="title" id="title"></div>
+    <div class="subtitle" id="question"></div>
+    <div id="options"></div>
+    <div class="fb" id="feedback"></div>
+    <div class="hint" id="hint" style="display:none"></div>
+    <div class="btns">
+      <button class="secondary" id="prevBtn">Zurück</button>
+      <button id="nextBtn" disabled>Weiter</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ================== CONFIG ================== */
+const TEMPLATE_VERSION = "v4-simple";
+const COURSE_TAG = "QUANT2";
+const SESSION_TAG = "S18";
+/* ============================================ */
+
+/* ================== ITEMS ================== */
+/*
+  Hinweis (für uns): correct = Index der richtigen Antwort (0-basiert!)
+*/
+const items = [
+  {
+    id:"regression-core-question",
+    type:"mc",
+    title:"Warum Regression? (Kernfrage)",
+    question:"Welche Leitfrage beantwortet eine lineare Regression typischerweise?",
+    options:[
+      "Unterscheiden sich zwei oder mehr Gruppen in Y?",
+      "Hängen X und Y zusammen – ohne Richtung?",
+      "Wenn X um eine Einheit steigt, wie verändert sich die Vorhersage von Y?",
+      "Ist Y normalverteilt?"
+    ],
+    correct:2,
+    feedback:[
+      "Das ist eher ANOVA/t-Test-Logik.",
+      "Das ist Korrelation (symmetrisch, ohne Richtung).",
+      "Richtig. Genau das ist die zentrale Regressionsfrage.",
+      "Das ist eine Diagnostik-/Voraussetzungsfrage, nicht der Zweck."
+    ],
+    transfer:false
+  },
+  {
+    id:"intercept-a",
+    type:"mc",
+    title:"y = a + bx (+ ε) – Intercept",
+    question:"Wofür steht <b>a</b> (Intercept) in der Regressionsgleichung?",
+    options:[
+      "Erwartete Änderung in Y pro Einheit X",
+      "Wert von Y, wenn X = 0",
+      "Anteil erklärter Varianz",
+      "Durchschnittliches Residuum"
+    ],
+    correct:1,
+    feedback:[
+      "Das ist <b>b</b> (Steigung).",
+      "Richtig. a ist der Achsenabschnitt: Ŷ bei X=0.",
+      "Das ist R².",
+      "Residuen sind Abweichungen y − ŷ, nicht „a“."
+    ],
+    transfer:false
+  },
+  {
+    id:"slope-b",
+    type:"mc",
+    title:"y = a + bx – Steigung",
+    question:"Was bedeutet der <b>unstandardisierte</b> Koeffizient <b>b</b>?",
+    options:[
+      "Y steigt um b Standardabweichungen, wenn X um 1 Einheit steigt",
+      "Y steigt um b Einheiten, wenn X um 1 Einheit steigt",
+      "X steigt um b Einheiten, wenn Y um 1 Einheit steigt",
+      "b ist immer zwischen −1 und +1"
+    ],
+    correct:1,
+    feedback:[
+      "Das wäre eher <b>standardisiert</b> (Beta), nicht b.",
+      "Richtig. b ist in <b>Originaleinheiten</b> interpretierbar.",
+      "Das vertauscht Richtung/Interpretation.",
+      "Das gilt eher für Korrelation r, nicht für b."
+    ],
+    transfer:false
+  },
+  {
+    id:"least-squares",
+    type:"mc",
+    title:"Methode der kleinsten Quadrate",
+    question:"Was minimiert die Least-Squares-Schätzung?",
+    options:[
+      "Summe der absoluten Residuen",
+      "Summe der quadrierten Residuen",
+      "Varianz von X",
+      "Korrelation zwischen X und Y"
+    ],
+    correct:1,
+    feedback:[
+      "Das wäre „Least Absolute Deviations“, nicht Standard-LS.",
+      "Richtig. Minimiert wird die Summe der <b>quadrierten</b> Fehler.",
+      "X-Varianz wird nicht „optimiert“.",
+      "Korrelation ist kein Minimierungsziel."
+    ],
+    transfer:false
+  },
+  {
+    id:"corr-vs-reg-direction",
+    type:"tf",
+    title:"Korrelation vs. Regression",
+    question:"Korrelation legt eine Modellrichtung X → Y fest, Regression nicht.",
+    correct:false,
+    feedbackTrue:"Falsch herum: So ist es nicht.",
+    feedbackFalse:"Richtig. Korrelation ist symmetrisch; Regression setzt eine Modellrichtung X → Y.",
+    transfer:false
+  },
+  {
+    id:"r2-meaning",
+    type:"mc",
+    title:"R² (Bestimmtheitsmaß)",
+    question:"Was beschreibt <b>R²</b> in der linearen Regression?",
+    options:[
+      "Anteil der Varianz von X, der durch Y erklärt wird",
+      "Anteil der Varianz von Y, der durch das Modell erklärt wird",
+      "Wahrscheinlichkeit, dass H₀ wahr ist",
+      "Stärke des Effekts in Originaleinheiten"
+    ],
+    correct:1,
+    feedback:[
+      "Richtung falsch: R² bezieht sich auf Y.",
+      "Richtig. R² = erklärte Varianz in <b>Y</b> durch das Modell.",
+      "Das ist ein verbreiteter Denkfehler über p-Werte.",
+      "Das ist b (unstandardisiert), nicht R²."
+    ],
+    transfer:false
+  },
+  {
+    id:"tvalue-purpose",
+    type:"mc",
+    title:"t-Test für den Koeffizienten",
+    question:"Wozu dient der <b>t-Wert</b> im Regressionsoutput?",
+    options:[
+      "Er testet, ob b signifikant von 0 verschieden ist",
+      "Er gibt den Anteil erklärter Varianz an",
+      "Er ist die Steigung der Regressionsgeraden",
+      "Er misst die Abweichung der Residuen von Normalverteilung"
+    ],
+    correct:0,
+    feedback:[
+      "Richtig. t testet b gegen 0 (unter Modellannahmen).",
+      "Das ist R².",
+      "Das ist b.",
+      "Das wäre Residuen-Diagnostik, nicht der t-Test für b."
+    ],
+    transfer:false
+  },
+  {
+    id:"assumptions-not",
+    type:"mc",
+    title:"Voraussetzungen (klassisch)",
+    question:"Welche Voraussetzung gehört <b>nicht</b> zu den typischen Voraussetzungen der linearen Regression?",
+    options:[
+      "Linearität",
+      "Homoskedastizität (konstante Fehlervarianz)",
+      "Unabhängigkeit der Beobachtungen",
+      "Gleiche Gruppengrößen in allen Gruppen"
+    ],
+    correct:3,
+    feedback:[
+      "Gehört dazu.",
+      "Gehört dazu.",
+      "Gehört dazu.",
+      "Richtig. Das ist eher ANOVA-Thema, nicht Regression als Grundannahme."
+    ],
+    transfer:false
+  },
+  {
+    id:"sig-not-causal",
+    type:"tf",
+    title:"Signifikant = kausal?",
+    question:"Ein signifikanter Regressionskoeffizient bedeutet, dass X die Ursache für Y ist.",
+    correct:false,
+    feedbackTrue:"Nein — Signifikanz beweist keine Ursache.",
+    feedbackFalse:"Richtig. Regression quantifiziert Zusammenhang/Vorhersage, nicht Kausalität.",
+    transfer:false
+  },
+  {
+    id:"which-question-regression",
+    type:"mc",
+    title:"Korrelation vs Regression vs Kausalität",
+    question:"Welche Frage ist am ehesten eine <b>Regressionsfrage</b> (nicht nur Korrelation, nicht Kausalität)?",
+    options:[
+      "Hängen Körpergröße und Körpergewicht zusammen?",
+      "Wenn ich das Bildungsniveau der Eltern kenne, kann ich den Schulerfolg der Kinder besser vorhersagen?",
+      "Verringert Medikament A Kopfschmerzen?",
+      "Sind Männer und Frauen verschieden zufrieden mit Demokratie?"
+    ],
+    correct:1,
+    feedback:[
+      "Das ist Korrelation (Zusammenhang ohne Richtung).",
+      "Richtig. Das ist Vorhersage-Logik (Regression).",
+      "Das ist kausal formuliert → braucht Studiendesign.",
+      "Das ist primär Gruppenvergleich (ANOVA/t-Test); kann per Dummy modelliert werden, ist hier aber nicht die „klassische“ Regressionsformulierung."
+    ],
+    transfer:false
+  },
+  {
+    id:"transfer-confounder",
+    type:"mc",
+    title:"Transfer: Confounder",
+    question:"Eine Regression zeigt: „Mehr Kaffee → geringere Sterblichkeit“. Was ist ein <b>plausibles Confounder-Argument</b> (Drittvariable)?",
+    options:[
+      "Kaffee macht Menschen automatisch sportlich.",
+      "Lebensstil/Fitness/Einkommen beeinflussen sowohl Kaffeekonsum als auch Sterblichkeit.",
+      "Wenn p < .001 ist, gibt es keine Alternativerklärung.",
+      "R² muss groß sein, sonst ist der Effekt nicht signifikant."
+    ],
+    correct:1,
+    feedback:[
+      "Das ist eine unbegründete Kausalbehauptung, kein Confounder-Argument.",
+      "Richtig. Genau das ist die Idee eines Confounders.",
+      "Signifikanz schließt Confounding nicht aus.",
+      "R² und Signifikanz sind unterschiedliche Dinge."
+    ],
+    hint:"<b>Tipp:</b> Ein Confounder ist eine Variable, die <i>mit X und Y zusammenhängt</i> und dadurch einen Scheineffekt erzeugen kann.",
+    transfer:true
+  },
+  {
+    id:"transfer-interpret-b",
+    type:"mc",
+    title:"Transfer: b interpretieren",
+    question:"In einem Output steht <b>b = 0.20</b> für X = „Lebenszufriedenheit“ und Y = „Demokratiezufriedenheit“ (beide Skalen). Welche Interpretation passt am besten?",
+    options:[
+      "Wenn Lebenszufriedenheit um 1 Punkt steigt, steigt die vorhergesagte Demokratiezufriedenheit im Mittel um 0.20 Punkte.",
+      "Wenn Demokratiezufriedenheit um 1 Punkt steigt, steigt Lebenszufriedenheit um 0.20 Punkte.",
+      "20% der Varianz werden erklärt.",
+      "Der Zusammenhang ist kausal bewiesen."
+    ],
+    correct:0,
+    feedback:[
+      "Richtig. Das ist die Standard-Interpretation von b (Originaleinheiten).",
+      "Richtung vertauscht.",
+      "Das wäre R² (wenn überhaupt), nicht b.",
+      "Regression beweist keine Kausalität."
+    ],
+    hint:"<b>Tipp:</b> b ist die Steigung: <i>ΔŶ</i> pro 1 Einheit in X — in den <i>Originaleinheiten</i> von Y.",
+    transfer:true
+  }
+];
+/* ============================================ */
+
+const TOTAL_ITEMS = items.length;
+
+// Storage key (per course + session + template)
+const LS_KEY = `quiz_state_${COURSE_TAG}_${SESSION_TAG}_${TEMPLATE_VERSION}`;
+document.getElementById("lskey").textContent = LS_KEY;
+
+// State
+let state = JSON.parse(localStorage.getItem(LS_KEY) || "{}");
+if(!state.idx && state.idx!==0){ state = { idx:0, points:0, done:{} }; }
+
+function save(){ localStorage.setItem(LS_KEY, JSON.stringify(state)); }
+
+function setBar(){
+  const pct = Math.round((state.idx)/TOTAL_ITEMS*100);
+  document.getElementById("bar").style.width = pct+"%";
+  document.getElementById("points").textContent = state.points;
+  document.getElementById("maxpoints").textContent = TOTAL_ITEMS;
+  document.getElementById("idx").textContent = Math.min(state.idx+1, TOTAL_ITEMS);
+  document.getElementById("total").textContent = TOTAL_ITEMS;
+}
+
+function render(){
+  const it = items[state.idx];
+
+  document.getElementById("title").innerHTML =
+    `${state.idx+1}. ${it.title} ${it.transfer ? '<span class="badge" title="Transferfrage: neues Problem auf Basis des Gelernten">🧠 TRANSFER</span>' : ""}`;
+
+  const wrap = document.getElementById("options");
+  wrap.innerHTML = "";
+
+  const fb = document.getElementById("feedback");
+  fb.textContent=""; fb.className="fb";
+
+  const hint = document.getElementById("hint");
+  hint.style.display="none";
+  hint.innerHTML="";
+
+  const nextBtn = document.getElementById("nextBtn");
+  nextBtn.disabled = true;
+  document.getElementById("prevBtn").disabled = (state.idx===0);
+
+  if(it.type==="mc"){
+    document.getElementById("question").innerHTML = it.question;
+
+    it.options.forEach((opt,i)=>{
+      const row = document.createElement("label");
+      row.className="opt";
+      const inp = document.createElement("input"); inp.type="radio"; inp.name=it.id; inp.value=i;
+      const span = document.createElement("span"); span.innerHTML = opt;
+      row.appendChild(inp); row.appendChild(span);
+
+      row.addEventListener("click", ()=>{
+        const correct = (i===it.correct);
+        row.classList.add(correct? "correct":"incorrect");
+
+        fb.textContent = it.feedback[i];
+        fb.className = "fb " + (correct? "ok":"bad");
+
+        Array.from(wrap.querySelectorAll("label.opt input")).forEach(el=>el.disabled=true);
+
+        if(it.transfer && !correct && it.hint){
+          hint.style.display = "block";
+          hint.innerHTML = it.hint;
+        }
+
+        if(!(it.id in state.done)){
+          state.points += correct ? 1 : 0;
+          state.done[it.id] = correct? "full":"none";
+          save();
+        }
+        nextBtn.disabled = false;
+        setBar();
+      });
+
+      wrap.appendChild(row);
+    });
+  }
+
+  if(it.type==="tf"){
+    document.getElementById("question").innerHTML = "";
+
+    const st = document.createElement("div");
+    st.className="subtitle";
+    st.innerHTML = it.question;
+    document.getElementById("question").appendChild(st);
+
+    const buttons = document.createElement("div");
+    buttons.style.display="flex";
+    buttons.style.gap="10px";
+
+    const bT = document.createElement("button"); bT.textContent="Stimmt";
+    const bF = document.createElement("button"); bF.textContent="Stimmt nicht"; bF.className="secondary";
+
+    [bT,bF].forEach(btn=>{
+      btn.addEventListener("click", ()=>{
+        const isTrue = (btn===bT);
+        const correct = (isTrue===it.correct);
+
+        fb.textContent = correct ? it.feedbackTrue : it.feedbackFalse;
+        fb.className = "fb " + (correct? "ok":"bad");
+
+        bT.disabled = bF.disabled = true;
+
+        if(!(it.id in state.done)){
+          state.points += correct ? 1 : 0;
+          state.done[it.id] = correct? "full":"none";
+          save();
+        }
+        nextBtn.disabled = false;
+        setBar();
+      });
+    });
+
+    buttons.appendChild(bT);
+    buttons.appendChild(bF);
+    wrap.appendChild(buttons);
+  }
+
+  setBar();
+}
+
+document.getElementById("nextBtn").addEventListener("click", ()=>{
+  if(state.idx < TOTAL_ITEMS-1){ state.idx++; save(); render(); }
+  else {
+    alert(`Geschafft! Punkte: ${state.points} von ${TOTAL_ITEMS}. Du hast alle ${TOTAL_ITEMS} Aufgaben abgeschlossen.`);
+  }
+});
+document.getElementById("prevBtn").addEventListener("click", ()=>{
+  if(state.idx>0){ state.idx--; save(); render(); }
+});
+
+document.getElementById("resetBtn").addEventListener("click", ()=>{
+  if(confirm("Fortschritt wirklich löschen und neu starten?")){
+    localStorage.removeItem(LS_KEY);
+    state = { idx:0, points:0, done:{} };
+    save();
+    render();
+    alert("Zurückgesetzt. Viel Erfolg beim neuen Durchlauf!");
+  }
+});
+
+render();
+</script>
+</body>
+</html>
