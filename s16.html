@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>QUANT – S16 (intern) – Notizen & Startpunkt</title>
+
+<!--
+===============================================================================
+QUANT-QUIZZES (GitHub Pages) – INTERNER STARTPUNKT / ORIENTIERUNG (S16)
+Diese Datei ist NICHT für Studierende gedacht und soll NICHT verlinkt werden.
+Sie dient nur als „Gedächtnisanker“, damit wir später sofort wieder einsteigen.
+
+REPO / PAGES
+- Repo: alexandernoyon-netizen/quant-quizzes
+- Pages-URL: https://alexandernoyon-netizen.github.io/quant-quizzes/
+- Einzeldateien: https://alexandernoyon-netizen.github.io/quant-quizzes/S17.html usw.
+- GitHub Pages Settings: Deploy from branch → main → /(root)
+
+DATEINAMEN / STRUKTUR
+- QUANT 1: S01.html … S15.html (bestehend)
+- QUANT 2: S16.html (diese interne Datei), dann S17.html … (echte Quizzes)
+- index.html ist der „Hub“ und enthält Links. S16 NICHT in index.html aufnehmen.
+
+DIDAKTISCHE LOGIK (Studis)
+- Seminar → Link klicken → „spielen“ (linear, step-by-step)
+- 12–14 Aufgaben pro Sitzung
+- Mischung: Wiederkäuen + Transfer (Transfer sichtbar markiert)
+
+PRODUKTIONS-WORKFLOW PRO SITZUNG (QUANT 2)
+1) Alex gibt PDF/Handout der Sitzung.
+2) ChatGPT erzeugt fertige Sxx.html (komplette Datei), inkl. Items & UI.
+3) Alex: Repo → Add file → Create new file → Sxx.html → Code reinkopieren → Commit.
+4) Link testen: .../quant-quizzes/Sxx.html
+5) index.html aktualisieren (Link für Sxx hinzufügen) – außer interne S16.
+
+ITEM-DESIGN (Empfehlung)
+- 8–10 Wiederkäuen (Begriffe, Definitionen, typische Annahmen)
+- 3–4 Transfer (Output-Interpretation, Anwendung auf Mini-Fall, Denkfehler-Fallen)
+- MC: Jede Antwortoption bekommt Feedback; falsch = „warum verführerisch, warum falsch?“
+- Transfer: optionales Feld hint (nur bei falscher Antwort anzeigen), z. B.:
+  - „Tipp: Identifiziere zuerst AV vs. UV.“
+  - „Tipp: p-Wert ≠ Effektgröße.“
+  - „Tipp: Interaktion heißt: Effekt hängt von Moderator ab.“
+
+TECHNIK-PRINZIPIEN
+- Statisch (HTML/CSS/JS), kein Build, kein Backend, maximal robust.
+- localStorage speichert Fortschritt pro Sitzung (unsichtbar für Studis).
+
+WICHTIGER TECHNIK-PUNKT (damit nichts nervt)
+- localStorage-Key muss pro Sitzung eindeutig sein, sonst überschreiben sich Fortschritte.
+- Empfohlenes Schema:
+  TEMPLATE_VERSION="v4-simple"
+  COURSE_TAG="QUANT2"
+  SESSION_TAG="S17"
+  LS_KEY = `quiz_state_${COURSE_TAG}_${SESSION_TAG}_${TEMPLATE_VERSION}`
+
+PROGRESS-BAR (besser für Gamification)
+- Statt „Position“ (idx) lieber „erledigt“ (done-count):
+  pct = Object.keys(state.done).length / TOTAL_ITEMS
+
+INDEX-STRUKTUR (Vorschlag)
+- index.html trennt QUANT 1 und QUANT 2 in zwei Blöcken:
+  - QUANT 1: S01–S15
+  - QUANT 2: ab S17 (S16 NICHT listen)
+
+WARUM S16 „INTERN“ IST
+- S16 war Einführung/Orga → kein inhaltliches Quiz.
+- Diese Datei ist nur für uns als Dokumentation, wird nicht verlinkt.
+
+CHECKLISTE, BEVOR EIN NEUES QUIZ LIVE GEHT
+- [ ] Dateiname korrekt (S17.html, S18.html …)
+- [ ] Titel/Überschrift passt zur Sitzung
+- [ ] LS_KEY eindeutig (QUANT2 + Sxx)
+- [ ] Anzahl Items stimmt (z. B. 12–14)
+- [ ] Transfer-Badge bei Transferfragen
+- [ ] Feedback vorhanden für alle Optionen (MC) / feedbackTrue/False (TF)
+- [ ] Link getestet über GitHub Pages
+- [ ] index.html aktualisiert (nur echte Sitzungen)
+
+===============================================================================
+-->
+<style>
+  :root{
+    --bg:#0b1220; --card:#121826; --muted:#9aa4b2; --text:#eef2f7;
+    --accent:#7dd3fc;
+  }
+  html,body{height:100%}
+  body{
+    margin:0;
+    background:linear-gradient(135deg,#0b1220 0%,#0f172a 100%);
+    color:var(--text);
+    font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+    display:flex;align-items:center;justify-content:center;padding:24px
+  }
+  .card{
+    width:100%;max-width:860px;
+    background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.02));
+    border:1px solid #1f2937;border-radius:18px;padding:22px;
+    box-shadow:0 10px 40px rgba(2,6,23,.4)
+  }
+  h1{margin:0 0 8px 0;font-size:20px}
+  p{margin:8px 0;color:var(--muted);line-height:1.5}
+  code{color:var(--accent)}
+  .small{font-size:13px}
+</style>
+</head>
+<body>
+  <div class="card">
+    <h1>QUANT – S16 (intern)</h1>
+    <p>
+      Diese Seite ist nur für uns (Dokumentation/Workflow). Bitte nicht in <code>index.html</code> verlinken.
+    </p>
+    <p class="small">
+      Falls du das hier aus Versehen offen hast: Für die Studis gibt es ab <code>S17.html</code> die echten Quizzes.
+    </p>
+  </div>
+</body>
+</html>
