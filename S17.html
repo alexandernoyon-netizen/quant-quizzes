@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>QUANT – Sitzung 17: ANOVA praktisch anwenden (Interaktives Quiz)</title>
+
+<style>
+  :root{
+    --bg:#0b1220; --card:#121826; --muted:#9aa4b2; --text:#eef2f7;
+    --accent:#7dd3fc; --ok:#34d399; --bad:#f87171; --btn:#38bdf8;
+  }
+  html,body{height:100%}
+  body{margin:0;background:linear-gradient(135deg,#0b1220 0%,#0f172a 100%);color:var(--text);
+       font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+       display:flex;align-items:center;justify-content:center;padding:24px}
+  .shell{width:100%;max-width:940px}
+  header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;gap:16px}
+  h1{font-size:20px;margin:0}
+  .progress{height:10px;background:#1f2937;border-radius:999px;overflow:hidden}
+  .progress span{display:block;height:10px;background:linear-gradient(90deg,#38bdf8,#60a5fa);width:0%}
+  .card{background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.02));
+        border:1px solid #1f2937;border-radius:18px;padding:20px;box-shadow:0 10px 40px rgba(2,6,23,.4)}
+  .title{font-weight:800;font-size:18px;margin-bottom:6px;display:flex;align-items:center;gap:10px}
+  .subtitle{color:var(--muted);margin-bottom:14px}
+  .opt{display:flex;gap:10px;align-items:center;margin:10px 0;padding:12px;border:1px solid #1f2937;border-radius:12px;cursor:pointer}
+  .opt input{margin:0}
+  .opt.correct{border-color:#065f46;background:rgba(16,185,129,.12)}
+  .opt.incorrect{border-color:#7f1d1d;background:rgba(239,68,68,.10)}
+  .btns{display:flex;gap:10px;justify-content:flex-end;margin-top:16px}
+  button{background:var(--btn);color:#0b1220;border:none;border-radius:10px;padding:10px 14px;font-weight:700;cursor:pointer}
+  button.secondary{background:#1f2937;color:var(--text)}
+  button[disabled]{opacity:.4;cursor:not-allowed}
+  .fb{margin-top:10px;font-size:14px}
+  .ok{color:var(--ok)} .bad{color:var(--bad)}
+  .muted{color:var(--muted)}
+  .badge{display:inline-block;font-size:12px;font-weight:800;letter-spacing:.04em;
+         padding:2px 8px;border-radius:999px;border:1px solid #334155;color:var(--accent);
+         background:rgba(125,211,252,.10)}
+  .hint{margin-top:8px;color:var(--muted);font-size:13px}
+  .hint b{color:var(--accent)}
+  details{margin-top:6px}
+  details summary{cursor:pointer}
+  code{color:var(--accent)}
+</style>
+</head>
+
+<body>
+<div class="shell">
+  <header>
+    <div>
+      <h1>QUANT – Sitzung 17: ANOVA praktisch anwenden</h1>
+      <div class="muted" id="meta">Punkte: <b id="points">0</b> / <b id="maxpoints">0</b> • Aufgabe <b id="idx">1</b>/<b id="total">0</b></div>
+      <details>
+        <summary>Info</summary>
+        <div class="muted">
+          Step-by-step Quiz zur Sitzung 17 (ANOVA). Scoring: <b>+1</b> pro richtige Antwort, <b>+0</b> bei falscher Antwort.
+          Transferfragen sind mit <span class="badge">🧠 TRANSFER</span> markiert.
+        </div>
+      </details>
+    </div>
+    <div style="min-width:280px">
+      <div class="progress"><span id="bar"></span></div>
+      <div style="margin-top:8px;display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap">
+        <button id="resetBtn" class="secondary" title="Fortschritt löschen und neu starten">Neu starten</button>
+      </div>
+      <div class="muted" style="text-align:right;margin-top:6px">
+        Key: <code id="lskey"></code>
+      </div>
+    </div>
+  </header>
+
+  <div class="card">
+    <div class="title" id="title"></div>
+    <div class="subtitle" id="question"></div>
+    <div id="options"></div>
+    <div class="fb" id="feedback"></div>
+    <div class="hint" id="hint" style="display:none"></div>
+    <div class="btns">
+      <button class="secondary" id="prevBtn">Zurück</button>
+      <button id="nextBtn" disabled>Weiter</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ================== CONFIG ================== */
+const TEMPLATE_VERSION = "v4-simple";
+const COURSE_TAG = "QUANT2";
+const SESSION_TAG = "S17";
+/* ============================================ */
+
+/* ================== ITEMS ================== */
+const items = [
+  {
+    id:"multi-ttest-problem",
+    type:"mc",
+    title:"Mehrere Gruppen",
+    question:"Warum sind mehrere t-Tests bei <b>drei oder mehr</b> Gruppen problematisch?",
+    options:[
+      "t-Tests sind rechnerisch ungenauer",
+      "Das Alpha-Fehler-Risiko kumuliert (mehr falsch-positive Treffer)",
+      "t-Tests setzen Normalverteilung nicht voraus",
+      "Die Stichprobe wird automatisch zu klein"
+    ],
+    correct:1,
+    feedback:[
+      "Nein. Rechengenauigkeit ist nicht das Problem.",
+      "Richtig. Viele Tests ⇒ höhere Wahrscheinlichkeit für mindestens einen Zufallstreffer.",
+      "Nein. Auch t-Tests haben Annahmen.",
+      "Nein. Gruppengröße ändert sich nicht durch den Test."
+    ],
+    transfer:false
+  },
+  {
+    id:"anova-goal",
+    type:"mc",
+    title:"Ziel der ANOVA",
+    question:"Was prüft eine einfaktorielle ANOVA primär?",
+    options:[
+      "Ob mindestens zwei Gruppen identisch sind",
+      "Ob alle Gruppenpaare sich unterscheiden",
+      "Ob sich Gruppenmittelwerte stärker unterscheiden als zufällig erwartet",
+      "Ob die Varianzen gleich sind"
+    ],
+    correct:2,
+    feedback:[
+      "Nein. ANOVA testet nicht „Identität“ bestimmter Gruppen.",
+      "Nein. Dafür braucht es Post-hoc-Tests.",
+      "Richtig. F vergleicht Signal (zwischen) vs. Rauschen (innerhalb).",
+      "Nein. Varianzhomogenität ist eine Voraussetzung, nicht die Kernfrage."
+    ],
+    transfer:false
+  },
+  {
+    id:"f-definition",
+    type:"mc",
+    title:"Grundformel",
+    question:"Der F-Wert ist definiert als …",
+    options:[
+      "Varianz innerhalb / Varianz zwischen",
+      "Mittelwertsdifferenz / Standardabweichung",
+      "Varianz zwischen / Varianz innerhalb",
+      "t² / df"
+    ],
+    correct:2,
+    feedback:[
+      "Nein. Genau umgekehrt.",
+      "Nein. Das ist keine Standarddefinition für F.",
+      "Richtig: <b>F = MS_between / MS_within</b>.",
+      "Nein. Mit zwei Gruppen gilt zwar F = t², aber nicht so allgemein."
+    ],
+    transfer:false
+  },
+  {
+    id:"independence-assumption",
+    type:"mc",
+    title:"Voraussetzung: Unabhängigkeit",
+    question:"Was meint die <b>Unabhängigkeitsannahme</b> bei der einfaktoriellen ANOVA am treffendsten?",
+    options:[
+      "Alle Gruppen haben gleiche Varianzen",
+      "Jede Beobachtung ist statistisch unabhängig von den anderen (keine systematische Kopplung/Clusterung)",
+      "Jede Person wird nur einmal gemessen",
+      "Die AV ist normalverteilt"
+    ],
+    correct:1,
+    feedback:[
+      "Nein. Das ist Varianzhomogenität.",
+      "Richtig. Problematisch sind z. B. Paare, Klassen/Teams, Cluster, wiederholte Messungen.",
+      "Nicht zwingend. „Einmal messen“ ist oft hinreichend (Between-Subjects), aber nicht die Definition von Unabhängigkeit.",
+      "Nein. Das ist eine andere Voraussetzung."
+    ],
+    transfer:false
+  },
+  {
+    id:"scale-level",
+    type:"mc",
+    title:"Voraussetzung: Skalenniveau",
+    question:"Welche Skalierung muss die abhängige Variable mindestens haben?",
+    options:["Nominal","Ordinal","Intervall","Dichotom"],
+    correct:2,
+    feedback:[
+      "Nein. Nominal ist zu grob für Mittelwertvergleiche.",
+      "Nein. Ordinal ist i. d. R. nicht ausreichend (klassische ANOVA).",
+      "Richtig. Intervall (oder Verhältnis) ist die typische Voraussetzung.",
+      "Nein. Dichotom ist Spezialfall, nicht „mindestens“."
+    ],
+    transfer:false
+  },
+  {
+    id:"levene-test",
+    type:"mc",
+    title:"Varianzhomogenität",
+    question:"Womit wird die Varianzhomogenität typischerweise geprüft?",
+    options:["Shapiro-Wilk-Test","Levene-Test","Chi-Quadrat-Test","Kolmogorov-Smirnov-Test"],
+    correct:1,
+    feedback:[
+      "Nein. Shapiro-Wilk prüft Normalverteilung.",
+      "Richtig. Levene testet Gleichheit der Varianzen.",
+      "Nein. Chi-Quadrat ist für kategoriale Zusammenhänge.",
+      "Nein. K-S ist (hier) ebenfalls ein Normalitätstest."
+    ],
+    transfer:false
+  },
+  {
+    id:"levene-alpha-logic",
+    type:"mc",
+    title:"Levene-Test – Logik",
+    question:"Warum wird beim Levene-Test (Annahmenprüfung) manchmal ein <b>höheres</b> Alpha (z. B. .20) verwendet?",
+    options:[
+      "Weil wir hier die Alternativhypothese prüfen",
+      "Weil ein höheres Alpha den β-Fehler reduziert (Verletzungen eher entdecken)",
+      "Weil p-Werte unter .05 immer unwichtig sind",
+      "Weil Varianzhomogenität unwichtig ist"
+    ],
+    correct:1,
+    feedback:[
+      "Nein. Geprüft wird weiterhin H0 (Varianzen gleich).",
+      "Richtig. Bei Annahmenprüfung will man Verletzungen eher nicht übersehen.",
+      "Nein. Das ist ein Missverständnis.",
+      "Nein. Homogenität ist relevant – nur der Umgang mit p ist anders gelagert."
+    ],
+    transfer:false
+  },
+  {
+    id:"levene-what-next",
+    type:"mc",
+    title:"Levene-Test – Konsequenz",
+    question:"Ein Levene-Test ergibt <b>p = .03</b>. Was folgt daraus am sinnvollsten?",
+    options:[
+      "ANOVA darf nicht gerechnet werden",
+      "Die Ergebnisse sind automatisch falsch",
+      "Es sollten robuste Verfahren / Korrekturen erwogen werden (z. B. Welch-ANOVA)",
+      "Die Effektgröße wird bedeutungslos"
+    ],
+    correct:2,
+    feedback:[
+      "Nein. Man kann rechnen, aber sollte robust reagieren.",
+      "Nein. Aber die Standard-ANOVA kann verzerrt sein.",
+      "Richtig. Typische Reaktion: Welch-ANOVA / robuste Verfahren / passende Post-hocs.",
+      "Nein. Effektgröße bleibt interpretierbar (mit Vorsicht bzgl. Test)."
+    ],
+    transfer:false
+  },
+  {
+    id:"f-significant-means",
+    type:"mc",
+    title:"F-Test – Interpretation",
+    question:"Ein signifikanter F-Test bedeutet …",
+    options:[
+      "Alle Gruppen unterscheiden sich",
+      "Mindestens ein Gruppenunterschied existiert",
+      "Die größte Gruppe dominiert das Ergebnis",
+      "Die Varianzen sind homogen"
+    ],
+    correct:1,
+    feedback:[
+      "Nein. Das wäre zu stark.",
+      "Richtig. Mindestens ein Mittelwert weicht ab – welche, klären Post-hocs.",
+      "Nein. Das kann vorkommen, ist aber nicht die Bedeutung von Signifikanz.",
+      "Nein. Homogenität ist Voraussetzung, nicht Konsequenz."
+    ],
+    transfer:false
+  },
+  {
+    id:"eta-squared",
+    type:"mc",
+    title:"Effektgröße",
+    question:"Was beschreibt das partielle Eta-Quadrat (<b>ηp²</b>) am besten?",
+    options:[
+      "Die Wahrscheinlichkeit eines Alpha-Fehlers",
+      "Den Anteil erklärter Varianz durch den Faktor (im Modellkontext)",
+      "Die mittlere Gruppenabweichung",
+      "Die Anzahl signifikanter Post-hoc-Tests"
+    ],
+    correct:1,
+    feedback:[
+      "Nein. Das ist Alpha, nicht Effektgröße.",
+      "Richtig. ηp² ist eine Varianzaufklärungsgröße (modellabhängig).",
+      "Nein. Das wäre eher eine Differenz-/Standardisierungslogik.",
+      "Nein. Post-hoc-Zahl ist kein Effektmaß."
+    ],
+    transfer:false
+  },
+  {
+    id:"posthoc-why",
+    type:"mc",
+    title:"Post-hoc-Tests",
+    question:"Warum sind Post-hoc-Tests nach einem signifikanten F-Test oft notwendig?",
+    options:[
+      "Um den F-Wert zu korrigieren",
+      "Um die Richtung des Effekts festzulegen",
+      "Um zu prüfen, <b>welche</b> Gruppen sich unterscheiden",
+      "Um Varianzhomogenität herzustellen"
+    ],
+    correct:2,
+    feedback:[
+      "Nein. F bleibt F.",
+      "Nicht primär. Richtung kann man aus Mittelwerten ableiten, aber Post-hocs klären Paarunterschiede.",
+      "Richtig. ANOVA sagt „mindestens ein Unterschied“, Post-hocs sagen „wo genau“.",
+      "Nein. Annahmen „stellt“ man nicht her."
+    ],
+    transfer:false
+  },
+  {
+    id:"tukey-when",
+    type:"mc",
+    title:"Tukey-HSD",
+    question:"Wann ist Tukey-HSD besonders geeignet?",
+    options:[
+      "Bei Varianzverletzung",
+      "Bei rein explorativen Analysen ohne vorherigen F-Test",
+      "Bei Varianzhomogenität und ähnlichen Gruppengrößen",
+      "Bei sehr kleinen Stichproben (n&lt;5) pro Gruppe"
+    ],
+    correct:2,
+    feedback:[
+      "Nein. Bei Varianzverletzung eher robuste Alternativen.",
+      "Nein. Üblich ist: erst globaler Test, dann Post-hocs.",
+      "Richtig. Tukey passt gut bei Homogenität/ähnlichen ns.",
+      "Nein. Extrem kleine ns sind generell problematisch."
+    ],
+    transfer:false
+  },
+  {
+    id:"transfer-sig-small",
+    type:"mc",
+    title:"Transfer: Signifikant ≠ groß",
+    question:"Eine ANOVA ergibt <b>p &lt; .001</b>, aber <b>ηp² = .02</b>. Was ist eine korrekte Interpretation?",
+    options:[
+      "Der Effekt ist sehr groß",
+      "Der Effekt ist statistisch signifikant, aber klein",
+      "Die Ergebnisse sind praktisch automatisch hochrelevant",
+      "Post-hoc-Tests sind überflüssig"
+    ],
+    correct:1,
+    feedback:[
+      "Nein. ηp²=.02 spricht eher für klein.",
+      "Richtig. Signifikanz sagt nichts über Größe/Praktikabilität.",
+      "Nein. Praktische Relevanz muss separat beurteilt werden.",
+      "Nein. F sagt nicht, welche Gruppen sich unterscheiden."
+    ],
+    hint:"<b>Tipp:</b> Trenne konsequent <i>statistische Signifikanz</i> (p) von <i>Effektgröße</i> (z. B. ηp²).",
+    transfer:true
+  },
+  {
+    id:"transfer-why-not-many-ttests",
+    type:"mc",
+    title:"Transfer: Warum nicht viele t-Tests?",
+    question:"Warum ist es problematisch, bei drei Gruppen einfach mehrere t-Tests zu rechnen (A vs B, A vs C, B vs C)?",
+    options:[
+      "Die t-Tests werden automatisch „zu streng“",
+      "Die Wahrscheinlichkeit für mindestens einen Zufalls-Treffer (falsch positiv) steigt",
+      "Die Normalverteilungsannahme wird dadurch verletzt",
+      "Die Effektgröße wird immer größer"
+    ],
+    correct:1,
+    feedback:[
+      "Nein. Eher umgekehrt: man findet leichter „zufällig Signifikantes“.",
+      "Richtig. Mehr Tests ⇒ kumulierendes Alpha-Fehler-Risiko.",
+      "Nein. Normalität hängt von Daten ab, nicht von der Anzahl Tests.",
+      "Nein. Effektgröße ist unabhängig davon."
+    ],
+    hint:"<b>Tipp:</b> Denke an das <i>kumulierte Alpha</i>: Je mehr Tests, desto höher die Chance auf mindestens einen falsch-positiven Befund.",
+    transfer:true
+  }
+];
+/* ============================================ */
+
+const TOTAL_ITEMS = items.length;
+
+// Storage key (per course + session + template)
+const LS_KEY = `quiz_state_${COURSE_TAG}_${SESSION_TAG}_${TEMPLATE_VERSION}`;
+document.getElementById("lskey").textContent = LS_KEY;
+
+// State
+let state = JSON.parse(localStorage.getItem(LS_KEY) || "{}");
+if(!state.idx && state.idx!==0){ state = { idx:0, points:0, done:{} }; }
+
+function save(){ localStorage.setItem(LS_KEY, JSON.stringify(state)); }
+
+function setBar(){
+  // Progress based on current position (simple, predictable step-by-step)
+  const pct = Math.round((state.idx)/TOTAL_ITEMS*100);
+  document.getElementById("bar").style.width = pct+"%";
+  document.getElementById("points").textContent = state.points;
+  document.getElementById("maxpoints").textContent = TOTAL_ITEMS;
+  document.getElementById("idx").textContent = Math.min(state.idx+1, TOTAL_ITEMS);
+  document.getElementById("total").textContent = TOTAL_ITEMS;
+}
+
+function render(){
+  const it = items[state.idx];
+  document.getElementById("title").innerHTML =
+    `${state.idx+1}. ${it.title} ${it.transfer ? '<span class="badge" title="Transferfrage: neues Problem auf Basis des Gelernten">🧠 TRANSFER</span>' : ""}`;
+
+  document.getElementById("question").innerHTML = it.question;
+
+  const wrap = document.getElementById("options");
+  wrap.innerHTML = "";
+
+  const fb = document.getElementById("feedback");
+  fb.textContent=""; fb.className="fb";
+
+  const hint = document.getElementById("hint");
+  hint.style.display="none";
+  hint.innerHTML="";
+
+  const nextBtn = document.getElementById("nextBtn");
+  nextBtn.disabled = true;
+  document.getElementById("prevBtn").disabled = (state.idx===0);
+
+  if(it.type==="mc"){
+    it.options.forEach((opt,i)=>{
+      const row = document.createElement("label");
+      row.className="opt";
+      const inp = document.createElement("input"); inp.type="radio"; inp.name=it.id; inp.value=i;
+      const span = document.createElement("span"); span.innerHTML = opt;
+      row.appendChild(inp); row.appendChild(span);
+
+      row.addEventListener("click", ()=>{
+        const correct = (i===it.correct);
+        row.classList.add(correct? "correct":"incorrect");
+
+        fb.textContent = it.feedback[i];
+        fb.className = "fb " + (correct? "ok":"bad");
+
+        // Disable all options
+        Array.from(wrap.querySelectorAll("label.opt input")).forEach(el=>el.disabled=true);
+
+        // Transfer hint only when wrong
+        if(it.transfer && !correct && it.hint){
+          hint.style.display = "block";
+          hint.innerHTML = it.hint;
+        }
+
+        // Score only once per item
+        if(!(it.id in state.done)){
+          state.points += correct ? 1 : 0;
+          state.done[it.id] = correct? "full":"none";
+          save();
+        }
+        nextBtn.disabled = false;
+        setBar();
+      });
+
+      wrap.appendChild(row);
+    });
+  }
+
+  setBar();
+}
+
+document.getElementById("nextBtn").addEventListener("click", ()=>{
+  if(state.idx < TOTAL_ITEMS-1){ state.idx++; save(); render(); }
+  else {
+    alert(`Geschafft! Punkte: ${state.points} von ${TOTAL_ITEMS}. Du hast alle ${TOTAL_ITEMS} Aufgaben abgeschlossen.`);
+  }
+});
+document.getElementById("prevBtn").addEventListener("click", ()=>{
+  if(state.idx>0){ state.idx--; save(); render(); }
+});
+
+document.getElementById("resetBtn").addEventListener("click", ()=>{
+  if(confirm("Fortschritt wirklich löschen und neu starten?")){
+    localStorage.removeItem(LS_KEY);
+    state = { idx:0, points:0, done:{} };
+    save();
+    render();
+    alert("Zurückgesetzt. Viel Erfolg beim neuen Durchlauf!");
+  }
+});
+
+render();
+</script>
+</body>
+</html>
