@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>QUANT – Sitzung 23: Ethik & Grenzen quantitativer Forschung (Interaktives Quiz)</title>
+
+<style>
+  :root{
+    --bg:#0b1220; --card:#121826; --muted:#9aa4b2; --text:#eef2f7;
+    --accent:#7dd3fc; --ok:#34d399; --bad:#f87171; --btn:#38bdf8;
+  }
+  html,body{height:100%}
+  body{margin:0;background:linear-gradient(135deg,#0b1220 0%,#0f172a 100%);color:var(--text);
+       font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+       display:flex;align-items:center;justify-content:center;padding:24px}
+  .shell{width:100%;max-width:940px}
+  header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;gap:16px}
+  h1{font-size:20px;margin:0}
+  .progress{height:10px;background:#1f2937;border-radius:999px;overflow:hidden}
+  .progress span{display:block;height:10px;background:linear-gradient(90deg,#38bdf8,#60a5fa);width:0%}
+  .card{background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.02));
+        border:1px solid #1f2937;border-radius:18px;padding:20px;box-shadow:0 10px 40px rgba(2,6,23,.4)}
+  .title{font-weight:800;font-size:18px;margin-bottom:6px;display:flex;align-items:center;gap:10px}
+  .subtitle{color:var(--muted);margin-bottom:14px}
+  .opt{display:flex;gap:10px;align-items:center;margin:10px 0;padding:12px;border:1px solid #1f2937;border-radius:12px;cursor:pointer}
+  .opt input{margin:0}
+  .opt.correct{border-color:#065f46;background:rgba(16,185,129,.12)}
+  .opt.incorrect{border-color:#7f1d1d;background:rgba(239,68,68,.10)}
+  .btns{display:flex;gap:10px;justify-content:flex-end;margin-top:16px}
+  button{background:var(--btn);color:#0b1220;border:none;border-radius:10px;padding:10px 14px;font-weight:700;cursor:pointer}
+  button.secondary{background:#1f2937;color:var(--text)}
+  button[disabled]{opacity:.4;cursor:not-allowed}
+  .fb{margin-top:10px;font-size:14px}
+  .ok{color:var(--ok)} .bad{color:var(--bad)}
+  .muted{color:var(--muted)}
+  .badge{display:inline-block;font-size:12px;font-weight:800;letter-spacing:.04em;
+         padding:2px 8px;border-radius:999px;border:1px solid #334155;color:var(--accent);
+         background:rgba(125,211,252,.10)}
+  .hint{margin-top:8px;color:var(--muted);font-size:13px}
+  .hint b{color:var(--accent)}
+  details{margin-top:6px}
+  details summary{cursor:pointer}
+  code{color:var(--accent)}
+</style>
+</head>
+
+<body>
+<div class="shell">
+  <header>
+    <div>
+      <h1>QUANT – Sitzung 23: Ethik & Grenzen quantitativer Forschung</h1>
+      <div class="muted" id="meta">Punkte: <b id="points">0</b> / <b id="maxpoints">0</b> • Aufgabe <b id="idx">1</b>/<b id="total">0</b></div>
+      <details>
+        <summary>Info</summary>
+        <div class="muted">
+          Step-by-step Quiz zur Sitzung 23 (Ethik & Grenzen quantitativer Forschung).
+          Scoring: <b>+1</b> pro richtige Antwort, <b>+0</b> bei falscher Antwort.
+          Transferfragen sind mit <span class="badge">🧠 TRANSFER</span> markiert.
+        </div>
+      </details>
+    </div>
+    <div style="min-width:280px">
+      <div class="progress"><span id="bar"></span></div>
+      <div style="margin-top:8px;display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap">
+        <button id="resetBtn" class="secondary" title="Fortschritt löschen und neu starten">Neu starten</button>
+      </div>
+      <div class="muted" style="text-align:right;margin-top:6px">
+        Key: <code id="lskey"></code>
+      </div>
+    </div>
+  </header>
+
+  <div class="card">
+    <div class="title" id="title"></div>
+    <div class="subtitle" id="question"></div>
+    <div id="options"></div>
+    <div class="fb" id="feedback"></div>
+    <div class="hint" id="hint" style="display:none"></div>
+    <div class="btns">
+      <button class="secondary" id="prevBtn">Zurück</button>
+      <button id="nextBtn" disabled>Weiter</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ================== CONFIG ==================
+const TEMPLATE_VERSION = "v4-simple";
+const COURSE_TAG = "QUANT2";
+const SESSION_TAG = "S23";
+// ============================================
+
+// =============== ITEMS ===============
+// Hinweis (für uns): correct = Index der richtigen Antwort (0-basiert!)
+const items = [
+  {
+    id:"eth-sensitive-support",
+    type:"mc",
+    title:"Sensible Themen – Schutzdimension",
+    question:"Ein Online-Fragebogen fragt anonym nach depressiven Symptomen und Suizidgedanken. Es gibt keine Hinweise auf Beratungsangebote oder Kontaktmöglichkeiten. Was ist hier das primäre ethische Risiko?",
+    options:[
+      "Mangelnde wissenschaftliche Validität der Skalen",
+      "Unzureichende Absicherung möglicher psychischer Belastung",
+      "Fehlende Repräsentativität der Stichprobe",
+      "Unklare Definition des Konstrukts „Depression“"
+    ],
+    correct:1,
+    feedback:[
+      "Das kann ein Qualitätsproblem sein, ist hier aber nicht der primäre ethische Punkt.",
+      "Richtig. Bei potenziell belastenden Inhalten braucht es Absicherung (z. B. Hinweise auf Hilfsangebote) und eine verantwortliche Gestaltung.",
+      "Das kann methodisch relevant sein, ist hier aber nicht das primäre ethische Risiko.",
+      "Das ist eine inhaltliche Präzisionsfrage, aber nicht der primäre ethische Punkt in diesem Szenario."
+    ],
+    transfer:false
+  },
+  {
+    id:"eth-voluntary-power",
+    type:"mc",
+    title:"Freiwilligkeit im Abhängigkeitsverhältnis",
+    question:"Eine Dozentin bittet ihre eigenen Studierenden während der Lehrveranstaltung um Teilnahme an einer Studie. Sie betont, dass die Teilnahme freiwillig sei. Was ist hier das zentrale ethische Risiko?",
+    options:[
+      "Mangelnde Anonymität",
+      "Verzerrte Stichprobe",
+      "Eingeschränkte Freiwilligkeit durch Machtverhältnis",
+      "Fehlende Repräsentativität"
+    ],
+    correct:2,
+    feedback:[
+      "Anonymität kann relevant sein, ist aber nicht zwingend der Kern des Problems hier.",
+      "Das ist möglich, aber das zentrale ethische Risiko liegt woanders.",
+      "Richtig. In hierarchischen Kontexten ist echte Freiwilligkeit schwer zu gewährleisten; es braucht zusätzliche Schutzmaßnahmen.",
+      "Repräsentativität ist eine methodische Frage, nicht das zentrale ethische Risiko hier."
+    ],
+    transfer:false
+  },
+  {
+    id:"eth-consent-goal",
+    type:"mc",
+    title:"Informierte Einwilligung",
+    question:"Was ist das zentrale ethische Ziel informierter Einwilligung?",
+    options:[
+      "Formale Absicherung der Studie gegenüber Kritik",
+      "Sicherstellung, dass Teilnehmende alle für ihre Entscheidung relevanten Informationen erhalten",
+      "Minimierung administrativer Risiken für die Forschenden",
+      "Reduktion der Belastung durch möglichst knappe Informationen"
+    ],
+    correct:1,
+    feedback:[
+      "Nein. Formale Absicherung kann ein Nebeneffekt sein, ist aber nicht das ethische Ziel.",
+      "Richtig. Informierte Einwilligung zielt auf Verstehen, Freiwilligkeit und eine reale Wahlmöglichkeit.",
+      "Nein. Verwaltung/Absicherung ist nicht das ethische Kernziel.",
+      "Nein. Kürze ist kein ethisches Ziel; entscheidend ist Verständlichkeit und Relevanz der Informationen."
+    ],
+    transfer:false
+  },
+  {
+    id:"eth-cumulative-burden",
+    type:"mc",
+    title:"Kumulierende Belastung",
+    question:"Ein Fragebogen enthält 120 Items zu belastenden Lebensereignissen. Alle Fragen sind sachlich formuliert, Teilnahme ist freiwillig. Was ist hier am ehesten zu prüfen?",
+    options:[
+      "Ob die Länge die Datenqualität beeinträchtigt",
+      "Ob die kumulative thematische Belastung reflektiert wurde",
+      "Ob die Teilnahmeentscheidung ausreichend informiert war",
+      "Ob die Skala ausreichend differenziert ist"
+    ],
+    correct:1,
+    feedback:[
+      "Das kann relevant sein, ist aber nicht der primäre ethische Fokus dieser Frage.",
+      "Richtig. Belastung entsteht häufig kumulativ; auch sachliche Items können in Summe überfordern oder belasten.",
+      "Einwilligung ist wichtig, aber der zentrale Punkt hier ist die kumulative Belastungswirkung der Inhalte und Länge.",
+      "Das ist eine Messfrage, nicht der primäre ethische Fokus hier."
+    ],
+    transfer:false
+  },
+  {
+    id:"eth-outliers-transparency",
+    type:"mc",
+    title:"Entfernen von Fällen",
+    question:"Nach Datenerhebung werden mehrere extreme Fälle entfernt. Im Bericht steht lediglich: „Ausreißer wurden ausgeschlossen“, ohne weitere Begründung. Was ist hier das primäre ethische Problem?",
+    options:[
+      "Fehlende statistische Robustheit",
+      "Mangelnde Transparenz der Entscheidungsregeln",
+      "Verletzung des Datenschutzes",
+      "Unzureichende Stichprobengröße"
+    ],
+    correct:1,
+    feedback:[
+      "Robustheit kann betroffen sein, ist aber nicht der Kern des ethischen Problems.",
+      "Richtig. Ohne transparente Regeln/Begründung entsteht der Eindruck selektiver Fallauswahl; gute Praxis verlangt Offenlegung und Rechtfertigung.",
+      "Datenschutz ist hier nicht das zentrale Thema.",
+      "Das kann ein Problem sein, folgt aber nicht zwingend aus dem geschilderten Vorgehen."
+    ],
+    transfer:false
+  },
+  {
+    id:"eth-harking",
+    type:"mc",
+    title:"HARKing",
+    question:"Ein Datensatz wird explorativ analysiert. Anschließend wird eine passende Hypothese formuliert und als ursprünglich geplant dargestellt. Wie ist dieses Vorgehen am treffendsten zu bezeichnen?",
+    options:[
+      "Replikation",
+      "HARKing",
+      "Explorative Analyse",
+      "Robustheitsprüfung"
+    ],
+    correct:1,
+    feedback:[
+      "Nein. Replikation ist die Wiederholung einer Studie/Analyse zur Überprüfung von Befunden.",
+      "Richtig. HARKing = Hypothesen nach Kenntnis der Ergebnisse als a priori ausgeben.",
+      "Explorativ analysieren ist nicht per se falsch – problematisch ist die nachträgliche Umdeutung als geplant.",
+      "Nein. Robustheitsprüfungen sind etwas anderes."
+    ],
+    transfer:false
+  },
+  {
+    id:"eth-phacking",
+    type:"mc",
+    title:"P-Hacking",
+    question:"Ein Forscher analysiert seinen Datensatz mit mehreren leicht unterschiedlichen Operationalisierungen desselben Konstrukts. Er berichtet ausschließlich die Variante mit signifikantem Ergebnis, ohne die alternativen Analysen offenzulegen. Wie ist dieses Vorgehen ethisch am treffendsten zu bezeichnen?",
+    options:[
+      "P-Hacking",
+      "HARKing",
+      "Selektive Stichprobenziehung",
+      "Explorative Datenanalyse"
+    ],
+    correct:0,
+    feedback:[
+      "Richtig. P-Hacking umfasst u. a. viele Analysevarianten zu testen und selektiv nur die signifikante zu berichten.",
+      "Nein. HARKing betrifft das nachträgliche Ausgeben von Hypothesen als geplant.",
+      "Nein. Das wäre z. B. gezielte Rekrutierung/Filterung von Personen, nicht das Variieren von Operationalisierungen.",
+      "Exploration kann legitim sein – aber nur mit Transparenz über die explorativen Schritte und ohne selektives Berichten."
+    ],
+    transfer:false
+  },
+  {
+    id:"eth-causal-language",
+    type:"mc",
+    title:"Kausalsprache",
+    question:"Eine korrelative Studie berichtet: „Soziale Medien führen zu höherer Einsamkeit.“ Was ist hier das präziseste Problem?",
+    options:[
+      "Fehlende Effektstärkenangabe",
+      "Überschreitung der durch das Design gedeckten Schlussfolgerung",
+      "Unzureichende Stichprobengröße",
+      "Fehlende Kontrolle von Drittvariablen"
+    ],
+    correct:1,
+    feedback:[
+      "Effektstärken sind wichtig, aber nicht der Kernfehler in diesem Satz.",
+      "Richtig. Bei korrelativem Design sind kausale Formulierungen nicht gedeckt; das ist eine Frage der zulässigen Inferenz.",
+      "Stichprobengröße ist hier nicht das präziseste Problem.",
+      "Drittvariablen können relevant sein, aber das Grundproblem ist die unzulässige Kausalbehauptung."
+    ],
+    transfer:false
+  },
+  {
+    id:"eth-small-effect-reporting",
+    type:"mc",
+    title:"Kleine Effekte kommunizieren",
+    question:"Eine Studie findet einen hochsignifikanten Gruppenunterschied (p < .01) mit einer Effektstärke von d = .12. Wie müsste dieses Ergebnis ethisch korrekt berichtet werden?",
+    options:[
+      "„Es zeigte sich ein signifikanter, jedoch kleiner Effekt (d = .12), dessen praktische Relevanz sorgfältig zu prüfen ist.“",
+      "„Aufgrund der hohen Signifikanz liegt ein bedeutsamer Gruppenunterschied vor.“",
+      "„Der signifikante Effekt belegt die Wirksamkeit der Intervention.“",
+      "„Das Ergebnis ist eindeutig und ohne Einschränkung interpretierbar.“"
+    ],
+    correct:0,
+    feedback:[
+      "Richtig. Signifikanz und Effektgröße werden getrennt; praktische Bedeutung wird nicht überzogen behauptet.",
+      "Nein. Hohe Signifikanz sagt nichts automatisch über praktische Bedeutsamkeit aus.",
+      "Nein. Signifikanz belegt nicht automatisch Wirksamkeit (Design/Alternativerklärungen).",
+      "Nein. Ohne Kontext/Design/Größenordnung sind solche Absolutheiten unzulässig."
+    ],
+    transfer:false
+  },
+  {
+    id:"eth-stigmatizing-categories",
+    type:"mc",
+    title:"Stigmatisierende Kategorien",
+    question:"Ein Fragebogen fragt: „Zu welcher Problemgruppe gehören Sie?“ (Optionen: „bildungsfern“, „sozial schwach“, „integrationsunwillig“). Welcher Aspekt ist hier primär ethisch problematisch?",
+    options:[
+      "Fehlende Skalenbreite",
+      "Stigmatisierende und wertende Kategorien",
+      "Fehlende Differenzierung",
+      "Unzureichende Operationalisierung"
+    ],
+    correct:1,
+    feedback:[
+      "Nein. Skalenbreite ist hier nicht der Kern.",
+      "Richtig. Wertende/stigmatisierende Kategorien verletzen Würde und können Schaden verursachen.",
+      "Differenzierung ist nicht der Kern, wenn die Kategorien schon normativ problematisch sind.",
+      "Operationalisierung kann man diskutieren, aber der primäre Punkt ist die stigmatisierende Rahmung."
+    ],
+    transfer:false
+  },
+  {
+    id:"eth-secondary-data",
+    type:"mc",
+    title:"Sekundärdaten",
+    question:"Ein Forscher nutzt einen bestehenden Datensatz mit sensiblen Variablen. Er argumentiert, dass ethische Verantwortung entfällt, da die Daten bereits erhoben wurden. Was ist die treffendste Bewertung?",
+    options:[
+      "Korrekt – Sekundärdaten sind ethisch neutral.",
+      "Ethik betrifft nur Primärerhebungen.",
+      "Auch bei Sekundärdaten bleibt Verantwortung für Interpretation und Kommunikation.",
+      "Sekundärdaten dürfen nicht für neue Fragestellungen genutzt werden."
+    ],
+    correct:2,
+    feedback:[
+      "Nein. Sekundärnutzung kann weiterhin ethische Risiken (z. B. Stigmatisierung) erzeugen.",
+      "Nein. Ethik betrifft auch Auswertung, Interpretation und Kommunikation.",
+      "Richtig. Verantwortung bleibt – besonders in der Darstellung und in möglichen Konsequenzen für Betroffene.",
+      "Nein. Sekundärdaten dürfen genutzt werden; entscheidend sind Rechte, Schutz und verantwortliche Kommunikation."
+    ],
+    transfer:false
+  },
+  {
+    id:"eth-ethics-vote-analysis",
+    type:"mc",
+    title:"Ethikvotum & Analyse",
+    question:"Eine Studie erhält ein positives Ethikvotum. Bei der Datenauswertung wird später ein statistisch problematisches Analyseverfahren gewählt. Welche Aussage trifft am ehesten zu?",
+    options:[
+      "Teilnehmende hätten im Rahmen der Einwilligung detailliert über die statistischen Verfahren informiert werden müssen; diese dürften nachträglich nicht angepasst werden.",
+      "Ein positives Ethikvotum wird nicht automatisch ungültig, wenn statistisch fehlerhaft gearbeitet wird.",
+      "Mit Erhalt des Ethikvotums entfällt die Verantwortung für methodische Qualität.",
+      "Methodische Fehler führen zwingend zur ethischen Unzulässigkeit der gesamten Studie."
+    ],
+    correct:1,
+    feedback:[
+      "In dieser Absolutheit nicht korrekt. Einwilligung verlangt relevante Informationen, aber keine Fixierung auf konkrete Methoden ohne Änderungsmöglichkeit.",
+      "Richtig. Ein Ethikvotum ersetzt keine methodische Qualitätssicherung; es wird nicht automatisch „ungültig“, aber Verantwortung bleibt.",
+      "Nein. Verantwortung bleibt immer bei den Forschenden.",
+      "Nein. Methodische Fehler sind gravierend, aber nicht automatisch identisch mit ethischer Unzulässigkeit der gesamten Studie."
+    ],
+    transfer:false
+  },
+  {
+    id:"eth-public-communication",
+    type:"mc",
+    title:"Kommunikation in der Öffentlichkeit",
+    question:"Ein komplexer Befund wird in einer Pressemitteilung stark verkürzt dargestellt. Was ist hier das primäre ethische Risiko?",
+    options:[
+      "Verlust statistischer Genauigkeit",
+      "Verzerrung der Befundlage durch selektive oder verkürzte Darstellung",
+      "Verletzung interner Forschungsstandards",
+      "Reduktion der methodischen Transparenz"
+    ],
+    correct:1,
+    feedback:[
+      "Die Formulierung ist zu technisch – das Kernrisiko ist nicht „Genauigkeit“, sondern Verzerrung/Missverständnis.",
+      "Richtig. Verkürzung kann zu irreführenden Botschaften führen und reale Konsequenzen haben.",
+      "Interne Standards können betroffen sein, aber das primäre Risiko ist die Verzerrung der öffentlichen Interpretation.",
+      "Transparenz spielt hinein, aber der Kern ist die irreführende Verkürzung/Selektion."
+    ],
+    transfer:false
+  },
+  {
+    id:"eth-vulnerable-protection",
+    type:"mc",
+    title:"Vulnerabilität",
+    question:"Eine Studie erhebt sensible Gesundheitsdaten bei psychisch belasteten Personen. Alle üblichen Einwilligungsformalitäten sind erfüllt. Was ist hier zusätzlich zu berücksichtigen?",
+    options:[
+      "Ob die Stichprobe ausreichend groß ist",
+      "Ob zusätzliche Schutz- oder Unterstützungsmaßnahmen erforderlich sind",
+      "Ob das Design randomisiert ist",
+      "Ob die Variablen normalverteilt sind"
+    ],
+    correct:1,
+    feedback:[
+      "Stichprobengröße ist methodisch relevant, aber nicht die zentrale Zusatzfrage hier.",
+      "Richtig. Vulnerable Gruppen erfordern oft zusätzliche Schutzmaßnahmen (Kommunikation, Unterstützung, Abbruchoptionen, Kontextsensibilität).",
+      "Randomisierung ist eine Designfrage, nicht die primäre ethische Zusatzdimension hier.",
+      "Normalverteilung ist eine Statistikfrage, nicht die ethische Zusatzdimension."
+    ],
+    transfer:false
+  },
+  {
+    id:"eth-exploratory-transparency",
+    type:"mc",
+    title:"Transparenz explorativer Analysen",
+    question:"Ein Bericht enthält sowohl geplante als auch explorative Analysen, ohne diese zu unterscheiden. Was ist hier das Kernproblem?",
+    options:[
+      "Explorative Analysen sind grundsätzlich unzulässig.",
+      "Fehlende Transparenz über den Status der Analysen.",
+      "Zu viele Variablen im Modell.",
+      "Zu geringe Effektstärke."
+    ],
+    correct:1,
+    feedback:[
+      "Nein. Explorative Analysen sind zulässig – entscheidend ist die transparente Kennzeichnung.",
+      "Richtig. Ohne Unterscheidung wird Evidenz überbewertet; Transparenz schützt vor Irreführung.",
+      "Das kann methodisch diskutiert werden, ist aber nicht der ethische Kernpunkt hier.",
+      "Effektstärke ist nicht das Kernproblem dieser Situation."
+    ],
+    transfer:false
+  }
+];
+
+// Totals
+const TOTAL_ITEMS = items.length;
+
+// Storage key
+const LS_KEY = `quiz_state_${COURSE_TAG}_${SESSION_TAG}_${TEMPLATE_VERSION}`;
+document.getElementById("lskey").textContent = LS_KEY;
+
+// State
+let state = JSON.parse(localStorage.getItem(LS_KEY) || "{}");
+if(!state.idx && state.idx!==0){ state = { idx:0, points:0, done:{} }; }
+
+function save(){ localStorage.setItem(LS_KEY, JSON.stringify(state)); }
+
+function setBar(){
+  const pct = Math.round((state.idx)/TOTAL_ITEMS*100);
+  document.getElementById("bar").style.width = pct+"%";
+  document.getElementById("points").textContent = state.points;
+  document.getElementById("maxpoints").textContent = TOTAL_ITEMS;
+  document.getElementById("idx").textContent = Math.min(state.idx+1, TOTAL_ITEMS);
+  document.getElementById("total").textContent = TOTAL_ITEMS;
+}
+
+function render(){
+  const it = items[state.idx];
+
+  document.getElementById("title").innerHTML =
+    `${state.idx+1}. ${it.title} ${it.transfer ? '<span class="badge" title="Transferfrage: neues Problem auf Basis des Gelernten">🧠 TRANSFER</span>' : ""}`;
+
+  document.getElementById("question").innerHTML = it.question;
+
+  const wrap = document.getElementById("options");
+  wrap.innerHTML = "";
+
+  const fb = document.getElementById("feedback");
+  fb.textContent=""; fb.className="fb";
+
+  const hint = document.getElementById("hint");
+  hint.style.display="none";
+  hint.innerHTML="";
+
+  const nextBtn = document.getElementById("nextBtn");
+  nextBtn.disabled = true;
+  document.getElementById("prevBtn").disabled = (state.idx===0);
+
+  it.options.forEach((opt,i)=>{
+    const row = document.createElement("label");
+    row.className="opt";
+    const inp = document.createElement("input"); inp.type="radio"; inp.name=it.id; inp.value=i;
+    const span = document.createElement("span"); span.innerHTML = opt;
+    row.appendChild(inp); row.appendChild(span);
+
+    row.addEventListener("click", ()=>{
+      const correct = (i===it.correct);
+      row.classList.add(correct? "correct":"incorrect");
+
+      fb.textContent = it.feedback[i];
+      fb.className = "fb " + (correct? "ok":"bad");
+
+      Array.from(wrap.querySelectorAll("label.opt input")).forEach(el=>el.disabled=true);
+
+      if(it.transfer && !correct && it.hint){
+        hint.style.display = "block";
+        hint.innerHTML = it.hint;
+      }
+
+      if(!(it.id in state.done)){
+        state.points += correct ? 1 : 0;
+        state.done[it.id] = correct? "full":"none";
+        save();
+      }
+      nextBtn.disabled = false;
+      setBar();
+    });
+
+    wrap.appendChild(row);
+  });
+
+  setBar();
+}
+
+document.getElementById("nextBtn").addEventListener("click", ()=>{
+  if(state.idx < TOTAL_ITEMS-1){ state.idx++; save(); render(); }
+  else {
+    alert(`Geschafft! Punkte: ${state.points} von ${TOTAL_ITEMS}. Du hast alle ${TOTAL_ITEMS} Aufgaben abgeschlossen.`);
+  }
+});
+document.getElementById("prevBtn").addEventListener("click", ()=>{
+  if(state.idx>0){ state.idx--; save(); render(); }
+});
+
+document.getElementById("resetBtn").addEventListener("click", ()=>{
+  if(confirm("Fortschritt wirklich löschen und neu starten?")){
+    localStorage.removeItem(LS_KEY);
+    state = { idx:0, points:0, done:{} };
+    save();
+    render();
+    alert("Zurückgesetzt. Viel Erfolg beim neuen Durchlauf!");
+  }
+});
+
+render();
+</script>
+</body>
+</html>
