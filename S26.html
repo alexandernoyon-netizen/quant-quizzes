@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>QUANT – Sitzung 26: Datenvielfalt jenseits des Fragebogens (Interaktives Quiz)</title>
+
+<style>
+  :root{
+    --bg:#0b1220; --card:#121826; --muted:#9aa4b2; --text:#eef2f7;
+    --accent:#7dd3fc; --ok:#34d399; --bad:#f87171; --btn:#38bdf8;
+  }
+  html,body{height:100%}
+  body{margin:0;background:linear-gradient(135deg,#0b1220 0%,#0f172a 100%);color:var(--text);
+       font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+       display:flex;align-items:center;justify-content:center;padding:24px}
+  .shell{width:100%;max-width:940px}
+  header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;gap:16px}
+  h1{font-size:20px;margin:0}
+  .progress{height:10px;background:#1f2937;border-radius:999px;overflow:hidden}
+  .progress span{display:block;height:10px;background:linear-gradient(90deg,#38bdf8,#60a5fa);width:0%}
+  .card{background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.02));
+        border:1px solid #1f2937;border-radius:18px;padding:20px;box-shadow:0 10px 40px rgba(2,6,23,.4)}
+  .title{font-weight:800;font-size:18px;margin-bottom:6px;display:flex;align-items:center;gap:10px}
+  .subtitle{color:var(--muted);margin-bottom:14px;line-height:1.35}
+  .opt{display:flex;gap:10px;align-items:flex-start;margin:10px 0;padding:12px;border:1px solid #1f2937;border-radius:12px;cursor:pointer}
+  .opt input{margin:3px 0 0 0}
+  .opt.correct{border-color:#065f46;background:rgba(16,185,129,.12)}
+  .opt.incorrect{border-color:#7f1d1d;background:rgba(239,68,68,.10)}
+  .btns{display:flex;gap:10px;justify-content:flex-end;margin-top:16px}
+  button{background:var(--btn);color:#0b1220;border:none;border-radius:10px;padding:10px 14px;font-weight:700;cursor:pointer}
+  button.secondary{background:#1f2937;color:var(--text)}
+  button[disabled]{opacity:.4;cursor:not-allowed}
+  .fb{margin-top:10px;font-size:14px}
+  .ok{color:var(--ok)} .bad{color:var(--bad)}
+  .muted{color:var(--muted)}
+  .badge{display:inline-block;font-size:12px;font-weight:800;letter-spacing:.04em;
+         padding:2px 8px;border-radius:999px;border:1px solid #334155;color:var(--accent);
+         background:rgba(125,211,252,.10)}
+  details{margin-top:6px}
+  details summary{cursor:pointer}
+  code{color:var(--accent)}
+</style>
+</head>
+
+<body>
+<div class="shell">
+  <header>
+    <div>
+      <h1>QUANT – Sitzung 26: Datenvielfalt jenseits des Fragebogens</h1>
+      <div class="muted" id="meta">Punkte: <b id="points">0</b> / <b id="maxpoints">0</b> • Aufgabe <b id="idx">1</b>/<b id="total">0</b></div>
+      <details>
+        <summary>Info</summary>
+        <div class="muted">
+          Step-by-step Quiz zur Sitzung 26 (Selbstvermessung, Social Media, Raumdaten – Datenlogiken & Grenzen).
+          Scoring: <b>+1</b> pro richtige Antwort, <b>+0</b> bei falscher Antwort.
+        </div>
+      </details>
+    </div>
+    <div style="min-width:280px">
+      <div class="progress"><span id="bar"></span></div>
+      <div style="margin-top:8px;display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap">
+        <button id="resetBtn" class="secondary" title="Fortschritt löschen und neu starten">Neu starten</button>
+      </div>
+      <div class="muted" style="text-align:right;margin-top:6px">
+        Key: <code id="lskey"></code>
+      </div>
+    </div>
+  </header>
+
+  <div class="card">
+    <div class="title" id="title"></div>
+    <div class="subtitle" id="question"></div>
+    <div id="options"></div>
+    <div class="fb" id="feedback"></div>
+    <div class="btns">
+      <button class="secondary" id="prevBtn">Zurück</button>
+      <button id="nextBtn" disabled>Weiter</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ================== CONFIG ==================
+const TEMPLATE_VERSION = "v4-simple";
+const COURSE_TAG = "QUANT2";
+const SESSION_TAG = "S26";
+// ============================================
+
+// =============== ITEMS ===============
+// Hinweis (für uns): correct = Index der richtigen Antwort (0-basiert!)
+const items = [
+  {
+    id:"wearable-sleep-scope",
+    title:"Selbstvermessung – Aussagekraft",
+    question:"Eine Studie nutzt kontinuierliche Schlafdaten aus Wearables. Welche Aussage ist methodisch korrekt?",
+    options:[
+      "Die Daten erlauben direkte Rückschlüsse auf klinische Schlafstörungen.",
+      "Die Daten zeigen Verläufe und Muster, ersetzen aber keine klinische Diagnose.",
+      "Die Daten sind objektiv und daher frei von Interpretationsproblemen.",
+      "Die Daten erlauben kausale Aussagen über Stress und Schlaf."
+    ],
+    correct:1,
+    feedback:[
+      "Zu stark. Wearables liefern Hinweise, aber keine klinische Diagnose per se.",
+      "Richtig. Wearables sind gut für Muster/Verläufe – Diagnosen/kausale Aussagen sind damit nicht automatisch möglich.",
+      "„Objektiv gemessen“ heißt nicht „interpretationsfrei“ (Validität, Kontext, Messlogik).",
+      "Kausalität folgt nicht automatisch aus Beobachtungsdaten."
+    ],
+    transfer:false
+  },
+  {
+    id:"objective-not-automatically-valid",
+    title:"Selbstvermessung – typische Überschätzung",
+    question:"Ein Forscher behauptet: „Da die Herzfrequenz objektiv gemessen wurde, sind die Ergebnisse automatisch valide.“ Was ist der zentrale Denkfehler?",
+    options:[
+      "Objektive Messung ersetzt keine theoretische Einbettung.",
+      "Herzfrequenz ist kein numerischer Wert.",
+      "Wearables sind immer ungenau.",
+      "Validität spielt bei physiologischen Daten keine Rolle."
+    ],
+    correct:0,
+    feedback:[
+      "Richtig. Objektive Messung garantiert keine Validität – man muss klären, was die Messung im Kontext bedeutet.",
+      "Doch – Herzfrequenz ist numerisch.",
+      "Zu absolut. Genauigkeit variiert; das ist nicht der Kernfehler.",
+      "Falsch. Validität ist immer relevant."
+    ],
+    transfer:false
+  },
+  {
+    id:"tweets-not-population",
+    title:"Social Media – Repräsentativität",
+    question:"Eine Analyse von 5.000 Tweets kommt zu dem Schluss: „Die Bevölkerung lehnt Maßnahme X mehrheitlich ab.“ Was ist hier problematisch?",
+    options:[
+      "Tweets sind keine Texte.",
+      "Social-Media-Daten sind keine Zufallsstichprobe der Bevölkerung.",
+      "5.000 ist zu klein.",
+      "Tweets sind immer anonym."
+    ],
+    correct:1,
+    feedback:[
+      "Doch – Tweets sind Texte.",
+      "Richtig. Social Media bildet keine Zufallsstichprobe; Posting/ Sichtbarkeit sind selektiv.",
+      "5.000 kann groß sein – das Problem ist Repräsentativität, nicht primär n.",
+      "Anonymität ist nicht zwingend gegeben und ist hier nicht der Kernpunkt."
+    ],
+    transfer:false
+  },
+  {
+    id:"platform-not-neutral",
+    title:"Social Media – Plattformlogik",
+    question:"Warum sind Social-Media-Daten nicht neutral?",
+    options:[
+      "Weil Menschen dort immer lügen.",
+      "Weil Algorithmen Sichtbarkeit strukturieren.",
+      "Weil nur junge Menschen posten.",
+      "Weil Posts nicht statistisch auswertbar sind."
+    ],
+    correct:1,
+    feedback:[
+      "Zu pauschal und nicht die methodische Kernerklärung.",
+      "Richtig. Sichtbarkeit/Engagement/Ranking formen, was überhaupt beobachtbar ist.",
+      "Zu pauschal. Altersunterschiede existieren, aber das erklärt nicht „Nicht-Neutralität“ allein.",
+      "Doch – man kann Posts sehr wohl quantitativ analysieren."
+    ],
+    transfer:false
+  },
+  {
+    id:"filterbubble-generalization",
+    title:"Social Media – Generalisierung prüfen",
+    question:"Ein Forschungsteam analysiert politische Kommentare auf einer Plattform. Sie stellen fest, dass 80 % der Beiträge eine bestimmte Position vertreten. Welche Schlussfolgerung ist methodisch nicht gedeckt?",
+    options:[
+      "Diese Position dominiert die sichtbare Kommunikation auf dieser Plattform.",
+      "Die Plattformstruktur kann zur Verstärkung bestimmter Positionen beitragen.",
+      "Diese Position wird in der Gesamtbevölkerung von etwa 80 % geteilt.",
+      "Die Analyse erfasst nur öffentlich sichtbare Beiträge."
+    ],
+    correct:2,
+    feedback:[
+      "Das ist gedeckt: Es geht um sichtbare Kommunikation auf dieser Plattform.",
+      "Das ist plausibel und methodisch diskutierbar (Plattform-/Algorithmuseffekte).",
+      "Richtig. Von Plattformkommunikation auf Bevölkerungsmehrheiten zu schließen ist methodisch unzulässig.",
+      "Das ist gedeckt: Es sind öffentlich sichtbare Beiträge, nicht private Meinungen."
+    ],
+    transfer:false
+  },
+  {
+    id:"space-aggregation-fallacy",
+    title:"Raumdaten – Aggregation",
+    question:"Eine Studie zeigt: In Stadtteil A liegt die Arbeitslosenquote bei 12 %, in Stadtteil B bei 5 %. Welche Aussage ist methodisch unzulässig?",
+    options:[
+      "Die Arbeitslosenquote unterscheidet sich zwischen den beiden Stadtteilen.",
+      "Die soziale Struktur der Stadtteile könnte unterschiedlich sein.",
+      "Eine Person aus Stadtteil A hat mit höherer Wahrscheinlichkeit Arbeit zu suchen als eine Person aus Stadtteil B.",
+      "Die Daten beschreiben Unterschiede auf Aggregatebene."
+    ],
+    correct:2,
+    feedback:[
+      "Das ist korrekt: Es beschreibt einen Aggregatunterschied.",
+      "Das ist plausibel: Unterschiede können strukturell begründet sein.",
+      "Richtig. Aus Aggregatquoten folgt nicht automatisch ein individuelles Risiko/Verhalten (ökologischer Fehlschluss).",
+      "Korrekt: Es sind Aggregatdaten."
+    ],
+    transfer:false
+  },
+  {
+    id:"spatial-units-constructed",
+    title:"Räumliche Konstruktion",
+    question:"Warum sind „Stadtteile“ als Analyseeinheiten nicht neutral?",
+    options:[
+      "Weil sie keine echten Orte sind.",
+      "Weil räumliche Einheiten administrativ konstruiert sind und andere Zuschnitte andere Befunde ergeben können.",
+      "Weil sie nicht numerisch codiert werden können.",
+      "Weil sie keine sozialen Prozesse enthalten."
+    ],
+    correct:1,
+    feedback:[
+      "Sie sind reale Orte – aber die Abgrenzung ist konstruiert.",
+      "Richtig. Grenzziehungen/ Zuschnitte beeinflussen Aggregationen und damit Befunde.",
+      "Doch – man kann sie codieren; das ist nicht das Problem.",
+      "Natürlich enthalten Stadtteile soziale Prozesse – die Frage ist, wie man sie misst/aggregiert."
+    ],
+    transfer:false
+  },
+  {
+    id:"correct-mapping",
+    title:"Vergleich der Datenlogiken",
+    question:"Welche Kombination ist korrekt zugeordnet?",
+    options:[
+      "Selbstvermessung → Aggregierte Strukturindikatoren",
+      "Social Media → kontinuierliche Individualverläufe",
+      "Raumdaten → kontextuelle Strukturmerkmale",
+      "Fragebogen → algorithmische Sichtbarkeitslogik"
+    ],
+    correct:2,
+    feedback:[
+      "Nein. Selbstvermessung ist typischerweise Individualverlauf (zeitlich hochauflösend).",
+      "Nein. Social Media ist eher öffentliche Kommunikation/Sichtbarkeit, nicht Individualverlauf.",
+      "Richtig. Raumdaten beschreiben Kontexte/Strukturen auf Aggregat-/Raumebene.",
+      "Nein. Algorithmische Sichtbarkeit ist Social Media, nicht klassischer Fragebogen."
+    ],
+    transfer:false
+  },
+  {
+    id:"no-causal-from-social",
+    title:"Kausalität",
+    question:"Warum erlauben Social-Media-Daten in der Regel keine kausalen Aussagen über gesellschaftliche Meinungen?",
+    options:[
+      "Weil sie nicht statistisch analysiert werden können.",
+      "Weil sie selektiv sichtbar gemachte Ausdrucksformen darstellen.",
+      "Weil sie immer qualitativ sind.",
+      "Weil sie keine Texte enthalten."
+    ],
+    correct:1,
+    feedback:[
+      "Doch – sie sind statistisch analysierbar.",
+      "Richtig. Sichtbarkeit/Selektion/Plattformlogiken verzerren, was beobachtbar ist; Kausalität folgt nicht automatisch.",
+      "Falsch. Sie können qualitativ oder quantitativ analysiert werden.",
+      "Natürlich enthalten sie Texte."
+    ],
+    transfer:false
+  },
+  {
+    id:"overclaim-wearables",
+    title:"Überdehnung von Wearable-Daten",
+    question:"Ein Forscher findet bei Studierenden während Prüfungsphasen erhöhte Herzfrequenz. Welche Aussage wäre überzogen?",
+    options:[
+      "Prüfungsphasen gehen mit veränderten physiologischen Mustern einher.",
+      "Die Herzfrequenz steigt im Durchschnitt in diesem Zeitraum.",
+      "Prüfungen verursachen eindeutig Stressreaktionen.",
+      "Es zeigen sich systematische Veränderungen im Zeitverlauf."
+    ],
+    correct:2,
+    feedback:[
+      "Das kann plausibel berichtet werden (als Muster/Assoziation).",
+      "Das ist eine deskriptive Aussage, wenn sauber ausgewertet.",
+      "Richtig. „Verursachen eindeutig“ ist kausal und zu stark für solche Beobachtungsdaten.",
+      "Das ist eine Aussage über Verlaufsmuster; möglich, wenn korrekt modelliert."
+    ],
+    transfer:false
+  },
+  {
+    id:"value-digital-data",
+    title:"Mehrwert digitaler Datenquellen",
+    question:"Welche Aussage beschreibt den wissenschaftlichen Mehrwert digitaler Datenquellen (z. B. Wearables, Social Media, Geodaten) am treffendsten?",
+    options:[
+      "Sie ermöglichen es, soziale Realität ohne theoretische Vorannahmen zu erfassen.",
+      "Sie erweitern das Spektrum beobachtbarer Phänomene, erfordern aber weiterhin theoretische Einbettung und kritische Reflexion.",
+      "Sie liefern präzisere Messwerte als klassische Fragebögen.",
+      "Sie reduzieren systematisch Verzerrungen durch soziale Erwünschtheit."
+    ],
+    correct:1,
+    feedback:[
+      "Verführerisch, aber falsch: Daten sind nie theorie-/modellfrei interpretierbar.",
+      "Richtig. Mehr Beobachtbarkeit – aber weiterhin Theorie, Kontext und kritische Reflexion nötig.",
+      "Manchmal, aber nicht generell; Vergleich hängt von Konstrukt und Messlogik ab.",
+      "Kann in manchen Fällen helfen, ist aber nicht „systematisch“ garantiert."
+    ],
+    transfer:false
+  },
+  {
+    id:"integration-when-convincing",
+    title:"Integrationslogik",
+    question:"Ein Projekt kombiniert Fragebogendaten zur subjektiven Belastung, Wearable-Daten zur Herzfrequenz und Social-Media-Posts zur Selbstdarstellung. Wann wäre diese Kombination methodisch besonders überzeugend?",
+    options:[
+      "Wenn alle drei Datenquellen identische Ergebnisse liefern.",
+      "Wenn sie unterschiedliche Aspekte desselben theoretischen Konstrukts erfassen und systematisch aufeinander bezogen werden.",
+      "Wenn jede Datenquelle für sich signifikante Ergebnisse zeigt.",
+      "Wenn eine der Datenquellen die anderen bestätigt."
+    ],
+    correct:1,
+    feedback:[
+      "Identische Ergebnisse sind nicht nötig; unterschiedliche Perspektiven sind gerade der Mehrwert.",
+      "Richtig. Stärke entsteht durch theoriegeleitete Integration und klare Zuordnung, was jede Quelle beitragen soll.",
+      "Signifikanz ist kein Qualitätskriterium für Integration.",
+      "Bestätigung ist nicht automatisch überzeugend – wichtig ist systematische, theoriegeleitete Verknüpfung."
+    ],
+    transfer:false
+  }
+];
+
+// Totals
+const TOTAL_ITEMS = items.length;
+
+// Storage key
+const LS_KEY = `quiz_state_${COURSE_TAG}_${SESSION_TAG}_${TEMPLATE_VERSION}`;
+document.getElementById("lskey").textContent = LS_KEY;
+
+// State
+let state = JSON.parse(localStorage.getItem(LS_KEY) || "{}");
+if(!state.idx && state.idx!==0){ state = { idx:0, points:0, done:{} }; }
+
+function save(){ localStorage.setItem(LS_KEY, JSON.stringify(state)); }
+
+function setBar(){
+  const pct = Math.round((state.idx)/TOTAL_ITEMS*100);
+  document.getElementById("bar").style.width = pct+"%";
+  document.getElementById("points").textContent = state.points;
+  document.getElementById("maxpoints").textContent = TOTAL_ITEMS;
+  document.getElementById("idx").textContent = Math.min(state.idx+1, TOTAL_ITEMS);
+  document.getElementById("total").textContent = TOTAL_ITEMS;
+}
+
+function render(){
+  const it = items[state.idx];
+
+  document.getElementById("title").innerHTML = `${state.idx+1}. ${it.title}`;
+  document.getElementById("question").innerHTML = it.question;
+
+  const wrap = document.getElementById("options");
+  wrap.innerHTML = "";
+
+  const fb = document.getElementById("feedback");
+  fb.textContent=""; fb.className="fb";
+
+  const nextBtn = document.getElementById("nextBtn");
+  nextBtn.disabled = true;
+  document.getElementById("prevBtn").disabled = (state.idx===0);
+
+  it.options.forEach((opt,i)=>{
+    const row = document.createElement("label");
+    row.className="opt";
+    const inp = document.createElement("input");
+    inp.type="radio"; inp.name=it.id; inp.value=i;
+    const span = document.createElement("span");
+    span.innerHTML = opt;
+    row.appendChild(inp); row.appendChild(span);
+
+    row.addEventListener("click", ()=>{
+      const correct = (i===it.correct);
+      row.classList.add(correct? "correct":"incorrect");
+
+      fb.textContent = it.feedback[i];
+      fb.className = "fb " + (correct? "ok":"bad");
+
+      Array.from(wrap.querySelectorAll("label.opt input")).forEach(el=>el.disabled=true);
+
+      if(!(it.id in state.done)){
+        state.points += correct ? 1 : 0;
+        state.done[it.id] = correct? "full":"none";
+        save();
+      }
+      nextBtn.disabled = false;
+      setBar();
+    });
+
+    wrap.appendChild(row);
+  });
+
+  setBar();
+}
+
+document.getElementById("nextBtn").addEventListener("click", ()=>{
+  if(state.idx < TOTAL_ITEMS-1){ state.idx++; save(); render(); }
+  else {
+    alert(`Geschafft! Punkte: ${state.points} von ${TOTAL_ITEMS}. Du hast alle ${TOTAL_ITEMS} Aufgaben abgeschlossen.`);
+  }
+});
+
+document.getElementById("prevBtn").addEventListener("click", ()=>{
+  if(state.idx>0){ state.idx--; save(); render(); }
+});
+
+document.getElementById("resetBtn").addEventListener("click", ()=>{
+  if(confirm("Fortschritt wirklich löschen und neu starten?")){
+    localStorage.removeItem(LS_KEY);
+    state = { idx:0, points:0, done:{} };
+    save();
+    render();
+    alert("Zurückgesetzt. Viel Erfolg beim neuen Durchlauf!");
+  }
+});
+
+render();
+</script>
+</body>
+</html>
