@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>QUANT – Sitzung 25: Ergänzende Datenerhebung & Fragebogenkonstruktion (Interaktives Quiz)</title>
+
+<style>
+  :root{
+    --bg:#0b1220; --card:#121826; --muted:#9aa4b2; --text:#eef2f7;
+    --accent:#7dd3fc; --ok:#34d399; --bad:#f87171; --btn:#38bdf8;
+  }
+  html,body{height:100%}
+  body{margin:0;background:linear-gradient(135deg,#0b1220 0%,#0f172a 100%);color:var(--text);
+       font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+       display:flex;align-items:center;justify-content:center;padding:24px}
+  .shell{width:100%;max-width:940px}
+  header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;gap:16px}
+  h1{font-size:20px;margin:0}
+  .progress{height:10px;background:#1f2937;border-radius:999px;overflow:hidden}
+  .progress span{display:block;height:10px;background:linear-gradient(90deg,#38bdf8,#60a5fa);width:0%}
+  .card{background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.02));
+        border:1px solid #1f2937;border-radius:18px;padding:20px;box-shadow:0 10px 40px rgba(2,6,23,.4)}
+  .title{font-weight:800;font-size:18px;margin-bottom:6px;display:flex;align-items:center;gap:10px}
+  .subtitle{color:var(--muted);margin-bottom:14px;line-height:1.35}
+  .opt{display:flex;gap:10px;align-items:flex-start;margin:10px 0;padding:12px;border:1px solid #1f2937;border-radius:12px;cursor:pointer}
+  .opt input{margin:3px 0 0 0}
+  .opt.correct{border-color:#065f46;background:rgba(16,185,129,.12)}
+  .opt.incorrect{border-color:#7f1d1d;background:rgba(239,68,68,.10)}
+  .btns{display:flex;gap:10px;justify-content:flex-end;margin-top:16px}
+  button{background:var(--btn);color:#0b1220;border:none;border-radius:10px;padding:10px 14px;font-weight:700;cursor:pointer}
+  button.secondary{background:#1f2937;color:var(--text)}
+  button[disabled]{opacity:.4;cursor:not-allowed}
+  .fb{margin-top:10px;font-size:14px}
+  .ok{color:var(--ok)} .bad{color:var(--bad)}
+  .muted{color:var(--muted)}
+  .badge{display:inline-block;font-size:12px;font-weight:800;letter-spacing:.04em;
+         padding:2px 8px;border-radius:999px;border:1px solid #334155;color:var(--accent);
+         background:rgba(125,211,252,.10)}
+  details{margin-top:6px}
+  details summary{cursor:pointer}
+  code{color:var(--accent)}
+  .block{margin-top:10px;padding:10px 12px;border:1px dashed #334155;border-radius:12px;background:rgba(125,211,252,.06)}
+  .block b{color:var(--accent)}
+  .block .mono{font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace}
+</style>
+</head>
+
+<body>
+<div class="shell">
+  <header>
+    <div>
+      <h1>QUANT – Sitzung 25: Ergänzende Datenerhebung & Fragebogenkonstruktion</h1>
+      <div class="muted" id="meta">Punkte: <b id="points">0</b> / <b id="maxpoints">0</b> • Aufgabe <b id="idx">1</b>/<b id="total">0</b></div>
+      <details>
+        <summary>Info</summary>
+        <div class="muted">
+          Step-by-step Quiz zur Sitzung 25 (Entscheidungslogik: verwenden → anpassen → neu konstruieren; Itemqualität; Mindeststandards).
+          Scoring: <b>+1</b> pro richtige Antwort, <b>+0</b> bei falscher Antwort.
+        </div>
+      </details>
+    </div>
+    <div style="min-width:280px">
+      <div class="progress"><span id="bar"></span></div>
+      <div style="margin-top:8px;display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap">
+        <button id="resetBtn" class="secondary" title="Fortschritt löschen und neu starten">Neu starten</button>
+      </div>
+      <div class="muted" style="text-align:right;margin-top:6px">
+        Key: <code id="lskey"></code>
+      </div>
+    </div>
+  </header>
+
+  <div class="card">
+    <div class="title" id="title"></div>
+    <div class="subtitle" id="question"></div>
+    <div id="options"></div>
+    <div class="fb" id="feedback"></div>
+    <div class="btns">
+      <button class="secondary" id="prevBtn">Zurück</button>
+      <button id="nextBtn" disabled>Weiter</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ================== CONFIG ==================
+const TEMPLATE_VERSION = "v4-simple";
+const COURSE_TAG = "QUANT2";
+const SESSION_TAG = "S25";
+// ============================================
+
+// =============== ITEMS ===============
+// Hinweis (für uns): correct = Index der richtigen Antwort (0-basiert!)
+const items = [
+  {
+    id:"use-validated",
+    title:"Entscheidungslogik – Validiertes Instrument vorhanden",
+    question:"Für dein Konstrukt existiert ein gut validiertes, vielfach eingesetztes Instrument. Was ist methodisch am sinnvollsten?",
+    options:[
+      "Ein eigenes Instrument entwickeln, um unabhängiger zu sein",
+      "Das validierte Instrument unverändert verwenden",
+      "Einige Items streichen, um Zeit zu sparen",
+      "Das Instrument in vereinfachter Form neu formulieren"
+    ],
+    correct:1,
+    feedback:[
+      "Eigenkonstruktion ist nur sinnvoll, wenn kein geeignetes Instrument existiert oder starke Gründe vorliegen.",
+      "Richtig. Der Goldstandard ist i. d. R. ein etabliertes, validiertes Instrument unverändert zu nutzen (Vergleichbarkeit).",
+      "Streichen kann die Messlogik verändern; wenn überhaupt, dann nur mit guter Begründung und Dokumentation.",
+      "Neuformulierung kann die Validität gefährden; wenn nötig, dann transparent begründen und prüfen."
+    ],
+    transfer:false
+  },
+  {
+    id:"adaptation-doc",
+    title:"Anpassung – wann problematisch?",
+    question:"Ein validiertes Instrument wird sprachlich leicht vereinfacht, damit es für Jugendliche verständlicher ist. Was ist hier entscheidend?",
+    options:[
+      "Anpassungen sind grundsätzlich unzulässig",
+      "Jede Veränderung macht die Validität automatisch ungültig",
+      "Die Anpassung muss begründet und transparent dokumentiert werden",
+      "Verständlichkeit ist weniger wichtig als Vergleichbarkeit"
+    ],
+    correct:2,
+    feedback:[
+      "Zu absolut. Anpassungen können sinnvoll sein, wenn sie begründet und geprüft werden.",
+      "Zu absolut. Änderungen können die Validität beeinflussen, aber nicht automatisch „ungültig“ machen.",
+      "Richtig. Transparenz/Begründung (und idealerweise Prüfung) ist der Kern.",
+      "Verständlichkeit ist zentral – sonst misst man am Ziel vorbei."
+    ],
+    transfer:false
+  },
+  {
+    id:"when-own-scale",
+    title:"Eigenkonstruktion – legitimer Anlass",
+    question:"Wann ist Eigenkonstruktion am ehesten vertretbar?",
+    options:[
+      "Wenn kein passendes Instrument existiert",
+      "Wenn man kreative Freiheit möchte",
+      "Wenn man Vergleichbarkeit vermeiden will",
+      "Wenn man statistische Tests umgehen möchte"
+    ],
+    correct:0,
+    feedback:[
+      "Richtig. Wenn es kein passendes Instrument gibt (oder es inhaltlich nicht passt), kann Eigenkonstruktion nötig sein.",
+      "Kreative Freiheit ist kein methodischer Grund.",
+      "Vergleichbarkeit zu vermeiden ist kein sauberes wissenschaftliches Ziel.",
+      "Statistische Tests „umgehen“ ist kein seriöses Motiv."
+    ],
+    transfer:false
+  },
+  {
+    id:"check-research-first",
+    title:"Typische Fehlannahme",
+    question:"Eine Studentin sagt: „Ich habe kein passendes Instrument gefunden, also habe ich selbst eines entwickelt.“ Was ist hier methodisch am ehesten zu prüfen?",
+    options:[
+      "Ob tatsächlich eine systematische Recherche nach bestehenden Instrumenten stattgefunden hat",
+      "Ob die geplante Stichprobengröße ausreichend ist",
+      "Ob das Instrument signifikante Ergebnisse liefern wird",
+      "Ob die Items möglichst kurz formuliert sind"
+    ],
+    correct:0,
+    feedback:[
+      "Richtig. Zuerst muss klar sein, dass wirklich kein geeignetes Instrument existiert (systematische Recherche).",
+      "Stichprobengröße ist wichtig, aber nicht der primäre Punkt dieser Aussage.",
+      "Das ist kein legitimes Kriterium für die Instrumentenwahl.",
+      "Itemlänge kann relevant sein, aber nicht der zentrale Punkt hier."
+    ],
+    transfer:false
+  },
+  {
+    id:"dont-drop-by-p",
+    title:"Streichen von Items",
+    question:"Ein Forscher streicht mehrere Items eines validierten Instruments, weil sie in seiner Stichprobe nicht signifikant sind. Was ist hier primär problematisch?",
+    options:[
+      "Signifikanz ist kein geeignetes Kriterium zur Itemauswahl",
+      "Reliabilität ist unwichtig",
+      "Effektstärken sind bedeutungslos",
+      "Stichprobengröße ist irrelevant"
+    ],
+    correct:0,
+    feedback:[
+      "Richtig. Items werden nicht nach p-Werten „optimiert“; das verletzt Messlogik und lädt zu Overfitting ein.",
+      "Im Gegenteil: Reliabilität ist wichtig.",
+      "Effektstärken sind wichtig.",
+      "Stichprobengröße ist relevant – aber nicht der Kernfehler hier."
+    ],
+    transfer:false
+  },
+  {
+    id:"translation-backtranslation",
+    title:"Übersetzung",
+    question:"Ein Instrument wird aus dem Englischen ins Deutsche übertragen. Was ist methodisch erforderlich?",
+    options:[
+      "Wörtliche Übersetzung reicht",
+      "Rückübersetzung oder ein vergleichbares Verfahren zur Qualitätssicherung",
+      "Anpassung an persönliche Vorlieben",
+      "Kürzung der Skala"
+    ],
+    correct:1,
+    feedback:[
+      "Wörtlich ist selten gut – es geht um semantische und kulturelle Äquivalenz.",
+      "Richtig. Verfahren wie Rückübersetzung helfen, Bedeutungsverschiebungen zu erkennen.",
+      "„Vorlieben“ sind kein methodisches Kriterium.",
+      "Kürzen kann die Skala verändern; wenn, dann begründen und prüfen."
+    ],
+    transfer:false
+  },
+
+  // ===== Block 2: Itemqualität (mit Skala) =====
+  {
+    id:"item-double-frequency",
+    title:"Itemqualität – Skalierung im Item",
+    question:`<div class="block"><b>Item:</b> „Ich fühle mich häufig belastet.“<br><b>Antwortskala:</b> sehr häufig – häufig – selten – nie</div>
+             Was ist hier das zentrale Problem?`,
+    options:[
+      "Die Antwortskala ist nicht symmetrisch",
+      "Die Häufigkeit wird sowohl im Item als auch in der Skala operationalisiert",
+      "Die Skala ist ordinal statt intervallskaliert",
+      "Das Item ist zu allgemein formuliert"
+    ],
+    correct:1,
+    feedback:[
+      "Symmetrie kann man diskutieren, aber der Kern ist woanders.",
+      "Richtig. Frequenz gehört in die Antwortskala – nicht doppelt in Item und Skala.",
+      "Ordinalität ist hier nicht das Kernproblem.",
+      "Allgemeinheit kann ein Thema sein, aber hier ist die doppelte Frequenzkodierung zentral."
+    ],
+    transfer:false
+  },
+  {
+    id:"item-double-negation",
+    title:"Itemqualität – Doppelte Verneinung",
+    question:`<div class="block"><b>Item:</b> „Ich bin nicht unzufrieden mit meiner Lebenssituation.“<br><b>Skala:</b> stimme voll zu – stimme eher zu – stimme eher nicht zu – stimme nicht zu</div>
+             Was ist hier das primäre Problem?`,
+    options:[
+      "Die Skala ist zu grob abgestuft",
+      "Die doppelte Verneinung erschwert eine klare inhaltliche Zuordnung",
+      "Die Skala ist nicht numerisch codiert",
+      "Das Item ist zu kurz"
+    ],
+    correct:1,
+    feedback:[
+      "Die Abstufung ist hier nicht das zentrale Problem.",
+      "Richtig. Doppelte Verneinung erhöht Missverständnisse und Antwortfehler.",
+      "Numerische Codierung ist eine Auswertungsfrage, nicht der Kern.",
+      "„Zu kurz“ ist kein Problem an sich."
+    ],
+    transfer:false
+  },
+  {
+    id:"item-double-barreled",
+    title:"Itemqualität – Doppelfrage",
+    question:`<div class="block"><b>Item:</b> „Ich fühle mich finanziell und emotional abgesichert.“<br><b>Skala:</b> trifft voll zu – trifft eher zu – trifft eher nicht zu – trifft nicht zu</div>
+             Was ist das zentrale Problem?`,
+    options:[
+      "Die Skala enthält keine Mittelkategorie",
+      "Zwei unterschiedliche Konstrukte werden in einem Item vermischt",
+      "Die Skala ist nicht ausreichend differenziert",
+      "Das Item ist zu konkret"
+    ],
+    correct:1,
+    feedback:[
+      "Eine Mittelkategorie kann man diskutieren, ist aber nicht der Kern.",
+      "Richtig. Finanzielle und emotionale Absicherung sind unterschiedliche Dimensionen.",
+      "Differenzierung ist hier nicht das Kernproblem.",
+      "Konkretheit ist nicht das Problem – die Vermischung ist es."
+    ],
+    transfer:false
+  },
+  {
+    id:"item-normative-framing",
+    title:"Itemqualität – Normative Suggestion",
+    question:`<div class="block"><b>Item:</b> „Verantwortungsbewusste Menschen engagieren sich ehrenamtlich.“<br><b>Skala:</b> stimme zu – stimme eher zu – stimme eher nicht zu – stimme nicht zu</div>
+             Was ist hier primär problematisch?`,
+    options:[
+      "Die Skala ist asymmetrisch",
+      "Das Item enthält eine normative Rahmung",
+      "Die Antwortkategorien sind zu wenige",
+      "Das Item ist zu abstrakt"
+    ],
+    correct:1,
+    feedback:[
+      "Asymmetrie ist hier nicht das Hauptproblem.",
+      "Richtig. Normative Rahmung erzeugt sozialen Druck und verzerrt Antworten.",
+      "Vier Kategorien können reichen; nicht der Kern.",
+      "Abstraktion kann man diskutieren, aber hier ist die Normativität zentral."
+    ],
+    transfer:false
+  },
+  {
+    id:"scale-unbalanced",
+    title:"Itemqualität – Unfaire Verteilung",
+    question:`<div class="block"><b>Item:</b> „Ich bin mit meiner Arbeit zufrieden.“<br><b>Skala:</b> stimme voll zu – stimme eher zu – stimme nicht zu</div>
+             Was ist hier das zentrale Problem?`,
+    options:[
+      "Es fehlt eine Mittelkategorie",
+      "Zustimmung und Ablehnung sind nicht gleich verteilt",
+      "Die Skala ist zu kurz",
+      "Die Antwortoptionen sind nicht numerisch codiert"
+    ],
+    correct:1,
+    feedback:[
+      "Eine Mittelkategorie ist nicht zwingend – der Kern ist die unfaire Verteilung.",
+      "Richtig. Zwei Zustimmungsoptionen vs. eine Ablehnungsoption verzerren Antworten.",
+      "Kurz kann okay sein; entscheidend ist die Balance.",
+      "Numerische Codierung ist Auswertung, nicht der Kern."
+    ],
+    transfer:false
+  },
+
+  // ===== Block 3: Eigenkonstruktion & Mindeststandards =====
+  {
+    id:"min-standard-own-scale",
+    title:"Mindestanforderung bei Eigenkonstruktion",
+    question:"Bei Eigenkonstruktion eines Instruments ist mindestens erforderlich:",
+    options:[
+      "Dokumentation der theoretischen Herleitung und Begründung der Itementwicklung",
+      "Nachweis signifikanter Gruppenunterschiede",
+      "Vergleich mit mindestens drei bestehenden Skalen",
+      "Verwendung einer fünfstufigen Likert-Skala"
+    ],
+    correct:0,
+    feedback:[
+      "Richtig. Theoriebezug, Dokumentation und Begründung sind Mindeststandard.",
+      "Signifikanz ist kein Mindeststandard der Konstruktion.",
+      "Vergleiche können sinnvoll sein, sind aber kein genereller Mindeststandard.",
+      "Fünfstufig ist kein Muss; entscheidend ist Passung und Begründung."
+    ],
+    transfer:false
+  },
+  {
+    id:"pilot-why",
+    title:"Pilotierung",
+    question:"Warum ist eine Pilotierung sinnvoll?",
+    options:[
+      "Um Signifikanz sicherzustellen",
+      "Um Verständlichkeit und Praktikabilität zu prüfen",
+      "Um Effektstärken zu erhöhen",
+      "Um Stichprobengröße zu reduzieren"
+    ],
+    correct:1,
+    feedback:[
+      "Pilotierung garantiert keine Signifikanz – sie prüft Instrumentqualität.",
+      "Richtig. Pilotierung testet Verständlichkeit, Bearbeitbarkeit und erste Probleme.",
+      "Effektstärken „erhöhen“ ist kein seriöses Ziel.",
+      "Pilotierung reduziert nicht automatisch die Stichprobe."
+    ],
+    transfer:false
+  },
+  {
+    id:"comparability-name",
+    title:"Vergleichbarkeit",
+    question:"Ein Instrument wird stark verändert, aber weiterhin unter dem ursprünglichen Namen geführt. Was ist hier problematisch?",
+    options:[
+      "Fehlende Randomisierung",
+      "Irreführende Vergleichbarkeit mit früheren Studien",
+      "Zu geringe Stichprobe",
+      "Zu hohe Reliabilität"
+    ],
+    correct:1,
+    feedback:[
+      "Randomisierung ist hier nicht der Punkt.",
+      "Richtig. Name suggeriert Vergleichbarkeit, obwohl Messung faktisch verändert wurde.",
+      "Stichprobe kann relevant sein, folgt aber nicht aus der Situation.",
+      "„Zu hohe Reliabilität“ ist kein typisches Problem."
+    ],
+    transfer:false
+  },
+  {
+    id:"decide-early",
+    title:"Strategische Entscheidung",
+    question:"Warum sollte die Entscheidung „verwenden – anpassen – neu konstruieren“ früh getroffen werden?",
+    options:[
+      "Weil spätere Änderungen die Vergleichbarkeit und Interpretation der Ergebnisse erschweren können",
+      "Weil sonst keine statistischen Tests möglich sind",
+      "Weil die Stichprobengröße davon automatisch abhängt",
+      "Weil frühe Entscheidungen höhere Effektstärken erzeugen"
+    ],
+    correct:0,
+    feedback:[
+      "Richtig. Messentscheidungen strukturieren die gesamte Studie (Vergleichbarkeit, Interpretation, Qualität).",
+      "Statistische Tests sind trotzdem möglich – aber die Aussagekraft leidet ggf.",
+      "Stichprobengröße hängt von vielen Faktoren ab; nicht „automatisch“ hiervon.",
+      "Effektstärken lassen sich nicht seriös durch Timing „erzeugen“."
+    ],
+    transfer:false
+  }
+];
+
+// Totals
+const TOTAL_ITEMS = items.length;
+
+// Storage key
+const LS_KEY = `quiz_state_${COURSE_TAG}_${SESSION_TAG}_${TEMPLATE_VERSION}`;
+document.getElementById("lskey").textContent = LS_KEY;
+
+// State
+let state = JSON.parse(localStorage.getItem(LS_KEY) || "{}");
+if(!state.idx && state.idx!==0){ state = { idx:0, points:0, done:{} }; }
+
+function save(){ localStorage.setItem(LS_KEY, JSON.stringify(state)); }
+
+function setBar(){
+  const pct = Math.round((state.idx)/TOTAL_ITEMS*100);
+  document.getElementById("bar").style.width = pct+"%";
+  document.getElementById("points").textContent = state.points;
+  document.getElementById("maxpoints").textContent = TOTAL_ITEMS;
+  document.getElementById("idx").textContent = Math.min(state.idx+1, TOTAL_ITEMS);
+  document.getElementById("total").textContent = TOTAL_ITEMS;
+}
+
+function render(){
+  const it = items[state.idx];
+
+  document.getElementById("title").innerHTML =
+    `${state.idx+1}. ${it.title}`;
+
+  document.getElementById("question").innerHTML = it.question;
+
+  const wrap = document.getElementById("options");
+  wrap.innerHTML = "";
+
+  const fb = document.getElementById("feedback");
+  fb.textContent=""; fb.className="fb";
+
+  const nextBtn = document.getElementById("nextBtn");
+  nextBtn.disabled = true;
+  document.getElementById("prevBtn").disabled = (state.idx===0);
+
+  it.options.forEach((opt,i)=>{
+    const row = document.createElement("label");
+    row.className="opt";
+    const inp = document.createElement("input"); inp.type="radio"; inp.name=it.id; inp.value=i;
+    const span = document.createElement("span"); span.innerHTML = opt;
+    row.appendChild(inp); row.appendChild(span);
+
+    row.addEventListener("click", ()=>{
+      const correct = (i===it.correct);
+      row.classList.add(correct? "correct":"incorrect");
+
+      fb.textContent = it.feedback[i];
+      fb.className = "fb " + (correct? "ok":"bad");
+
+      Array.from(wrap.querySelectorAll("label.opt input")).forEach(el=>el.disabled=true);
+
+      if(!(it.id in state.done)){
+        state.points += correct ? 1 : 0;
+        state.done[it.id] = correct? "full":"none";
+        save();
+      }
+      nextBtn.disabled = false;
+      setBar();
+    });
+
+    wrap.appendChild(row);
+  });
+
+  setBar();
+}
+
+document.getElementById("nextBtn").addEventListener("click", ()=>{
+  if(state.idx < TOTAL_ITEMS-1){ state.idx++; save(); render(); }
+  else {
+    alert(`Geschafft! Punkte: ${state.points} von ${TOTAL_ITEMS}. Du hast alle ${TOTAL_ITEMS} Aufgaben abgeschlossen.`);
+  }
+});
+document.getElementById("prevBtn").addEventListener("click", ()=>{
+  if(state.idx>0){ state.idx--; save(); render(); }
+});
+
+document.getElementById("resetBtn").addEventListener("click", ()=>{
+  if(confirm("Fortschritt wirklich löschen und neu starten?")){
+    localStorage.removeItem(LS_KEY);
+    state = { idx:0, points:0, done:{} };
+    save();
+    render();
+    alert("Zurückgesetzt. Viel Erfolg beim neuen Durchlauf!");
+  }
+});
+
+render();
+</script>
+</body>
+</html>
