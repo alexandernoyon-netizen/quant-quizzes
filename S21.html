@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>QUANT – Sitzung 21: Nichtparametrische Verfahren (Interaktives Quiz)</title>
+
+<style>
+  :root{
+    --bg:#0b1220; --card:#121826; --muted:#9aa4b2; --text:#eef2f7;
+    --accent:#7dd3fc; --ok:#34d399; --bad:#f87171; --btn:#38bdf8;
+  }
+  html,body{height:100%}
+  body{margin:0;background:linear-gradient(135deg,#0b1220 0%,#0f172a 100%);color:var(--text);
+       font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+       display:flex;align-items:center;justify-content:center;padding:24px}
+  .shell{width:100%;max-width:940px}
+  header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;gap:16px}
+  h1{font-size:20px;margin:0}
+  .progress{height:10px;background:#1f2937;border-radius:999px;overflow:hidden}
+  .progress span{display:block;height:10px;background:linear-gradient(90deg,#38bdf8,#60a5fa);width:0%}
+  .card{background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.02));
+        border:1px solid #1f2937;border-radius:18px;padding:20px;box-shadow:0 10px 40px rgba(2,6,23,.4)}
+  .title{font-weight:800;font-size:18px;margin-bottom:6px;display:flex;align-items:center;gap:10px}
+  .subtitle{color:var(--muted);margin-bottom:14px}
+  .opt{display:flex;gap:10px;align-items:center;margin:10px 0;padding:12px;border:1px solid #1f2937;border-radius:12px;cursor:pointer}
+  .opt input{margin:0}
+  .opt.correct{border-color:#065f46;background:rgba(16,185,129,.12)}
+  .opt.incorrect{border-color:#7f1d1d;background:rgba(239,68,68,.10)}
+  .btns{display:flex;gap:10px;justify-content:flex-end;margin-top:16px}
+  button{background:var(--btn);color:#0b1220;border:none;border-radius:10px;padding:10px 14px;font-weight:700;cursor:pointer}
+  button.secondary{background:#1f2937;color:var(--text)}
+  button[disabled]{opacity:.4;cursor:not-allowed}
+  .fb{margin-top:10px;font-size:14px}
+  .ok{color:var(--ok)} .bad{color:var(--bad)}
+  .muted{color:var(--muted)}
+  .badge{display:inline-block;font-size:12px;font-weight:800;letter-spacing:.04em;
+         padding:2px 8px;border-radius:999px;border:1px solid #334155;color:var(--accent);
+         background:rgba(125,211,252,.10)}
+  .hint{margin-top:8px;color:var(--muted);font-size:13px}
+  .hint b{color:var(--accent)}
+  details{margin-top:6px}
+  details summary{cursor:pointer}
+  code{color:var(--accent)}
+</style>
+</head>
+
+<body>
+<div class="shell">
+  <header>
+    <div>
+      <h1>QUANT – Sitzung 21: Nichtparametrische Verfahren</h1>
+      <div class="muted" id="meta">Punkte: <b id="points">0</b> / <b id="maxpoints">0</b> • Aufgabe <b id="idx">1</b>/<b id="total">0</b></div>
+      <details>
+        <summary>Info</summary>
+        <div class="muted">
+          Step-by-step Quiz zur Sitzung 21 (Nichtparametrische Verfahren).
+          Scoring: <b>+1</b> pro richtige Antwort, <b>+0</b> bei falscher Antwort.
+          Transferfragen sind mit <span class="badge">🧠 TRANSFER</span> markiert.
+        </div>
+      </details>
+    </div>
+    <div style="min-width:280px">
+      <div class="progress"><span id="bar"></span></div>
+      <div style="margin-top:8px;display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap">
+        <button id="resetBtn" class="secondary" title="Fortschritt löschen und neu starten">Neu starten</button>
+      </div>
+      <div class="muted" style="text-align:right;margin-top:6px">
+        Key: <code id="lskey"></code>
+      </div>
+    </div>
+  </header>
+
+  <div class="card">
+    <div class="title" id="title"></div>
+    <div class="subtitle" id="question"></div>
+    <div id="options"></div>
+    <div class="fb" id="feedback"></div>
+    <div class="hint" id="hint" style="display:none"></div>
+    <div class="btns">
+      <button class="secondary" id="prevBtn">Zurück</button>
+      <button id="nextBtn" disabled>Weiter</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ================== CONFIG ==================
+const TEMPLATE_VERSION = "v4-simple";
+const COURSE_TAG = "QUANT2";
+const SESSION_TAG = "S21";
+// ============================================
+
+// =============== ITEMS ===============
+// Hinweis (für uns): correct = Index der richtigen Antwort (0-basiert!)
+const items = [
+  {
+    id:"np-standard-vs-fallback",
+    type:"mc",
+    title:"Einordnung",
+    question:"Welche Aussage trifft am besten zu?",
+    options:[
+      "Nichtparametrische Tests sind grundsätzlich besser als parametrische.",
+      "Nichtparametrische Tests sind ein neues statistisches Paradigma.",
+      "Parametrische Verfahren sind Standard; nichtparametrische sind eine robuste Fallback-Option.",
+      "Nichtparametrische Verfahren ersetzen Regression und ANOVA."
+    ],
+    correct:2,
+    feedback:[
+      "Nein. Es geht nicht um „besser“, sondern um Passung zu Daten/Annahmen.",
+      "Nein. Sie sind keine neue Statistik, sondern Alternativen mit anderen Annahmen.",
+      "Richtig. Parametrisch ist Standard; nichtparametrisch ist oft eine robuste Alternative, wenn Annahmen problematisch sind.",
+      "Nein. Sie ergänzen, ersetzen aber nicht grundsätzlich die parametrischen Modellfamilien."
+    ],
+    transfer:false
+  },
+  {
+    id:"np-when-consider",
+    type:"mc",
+    title:"Wann nachdenken?",
+    question:"Welche Situation ist typisch ein Anlass, über nichtparametrische Alternativen nachzudenken?",
+    options:[
+      "Sehr große Stichprobe (n > 3000)",
+      "Deutliche Schiefe / extreme Normalitätsabweichung",
+      "Perfekte Varianzhomogenität",
+      "Sehr hohe Power"
+    ],
+    correct:1,
+    feedback:[
+      "Nein. Große n macht parametrische Verfahren oft eher stabil (je nach Kontext).",
+      "Richtig. Bei starker Schiefe/Ausreißern/Verteilungsproblemen kann nichtparametrisch sinnvoll sein.",
+      "Nein. Wenn die Annahmen gut erfüllt sind, spricht wenig gegen parametrische Verfahren.",
+      "Nein. Hohe Power ist kein Grund, das Verfahren zu wechseln."
+    ],
+    transfer:false
+  },
+  {
+    id:"np-rank-core",
+    type:"mc",
+    title:"Grundidee",
+    question:"Was ist der Kerntrick vieler nichtparametrischer Tests?",
+    options:[
+      "Rohwerte werden z-standardisiert.",
+      "Rohwerte werden in Ränge umgewandelt.",
+      "Kategorien werden dummy-codiert.",
+      "Mittelwerte werden quadriert."
+    ],
+    correct:1,
+    feedback:[
+      "Nein. Standardisierung ist etwas anderes als Rangbildung.",
+      "Richtig. Viele nichtparametrische Tests arbeiten mit Rängen statt mit Rohwerten.",
+      "Nein. Dummy-Codierung betrifft kategoriale Prädiktoren in Regression/ANOVA-Kontexten.",
+      "Nein. Das wäre keine typische Strategie nichtparametrischer Tests."
+    ],
+    transfer:false
+  },
+  {
+    id:"np-assumptions",
+    type:"mc",
+    title:"Annahmen",
+    question:"Welche Aussage passt zu nichtparametrischen Tests (im Vergleich zu vielen parametrischen)?",
+    options:[
+      "Normalverteilung ist zwingend nötig.",
+      "Varianzhomogenität ist zwingend nötig.",
+      "Weniger starke Verteilungsannahmen, oft keine Normalverteilung nötig.",
+      "Sie benötigen größere Stichproben als parametrische."
+    ],
+    correct:2,
+    feedback:[
+      "Nein. Viele nichtparametrische Tests kommen ohne Normalverteilungsannahme aus.",
+      "Nein. Varianzhomogenität ist nicht das zentrale Kriterium vieler nichtparametrischer Tests.",
+      "Richtig. Sie sind häufig robuster gegenüber Verteilungsproblemen.",
+      "Nein. Das ist nicht grundsätzlich so; es hängt von Ziel, Effekt, Datenlage ab."
+    ],
+    transfer:false
+  },
+  {
+    id:"np-tradeoff-power",
+    type:"mc",
+    title:"Preis der Robustheit",
+    question:"Was ist ein typischer Nachteil nichtparametrischer Tests?",
+    options:[
+      "Sie erhöhen die Power.",
+      "Sie senken die Power → höheres Risiko für β-Fehler.",
+      "Sie machen p-Werte automatisch kleiner.",
+      "Sie sind nur für Experimente zulässig."
+    ],
+    correct:1,
+    feedback:[
+      "Nein. Typischerweise ist es eher umgekehrt (bei gleichen Voraussetzungen).",
+      "Richtig. Robustheit kann mit geringerer Power einhergehen (nicht immer, aber oft).",
+      "Nein. p-Werte werden nicht „automatisch“ kleiner oder größer.",
+      "Nein. Nichtparametrische Tests sind nicht auf Experimente beschränkt."
+    ],
+    transfer:false
+  },
+  {
+    id:"np-spirit",
+    type:"mc",
+    title:"Haltung",
+    question:"Welcher Satz trifft den „Spirit“ der Sitzung am besten?",
+    options:[
+      "Nichtparametrische Tests sind die fortgeschrittene Variante.",
+      "Nichtparametrische Tests sind eine robuste Notlösung, nicht die bessere Statistik.",
+      "Wer nichtparametrisch testet, zeigt besondere wissenschaftliche Strenge.",
+      "Nichtparametrisch ist Pflicht, wenn p < .05 schwer erreichbar ist."
+    ],
+    correct:1,
+    feedback:[
+      "Nein. „Fortgeschritten“ ist kein valider Qualitätsmarker – es geht um Passung.",
+      "Richtig. Nichtparametrisch ist sinnvoll, wenn Annahmen/Datensituation es nahelegen – nicht als genereller Ersatz.",
+      "Nein. Das wäre ein Status-Argument; entscheidend ist die methodische Begründung.",
+      "Nein. Tests sind keine p-Wert-Optimierung; Vorgehen muss inhaltlich/methodisch begründet sein."
+    ],
+    transfer:false
+  },
+  {
+    id:"np-independent-two-groups",
+    type:"mc",
+    title:"Testwahl: zwei unabhängige Gruppen",
+    question:"Welcher Test ist das nichtparametrische Pendant zum t-Test für unabhängige Stichproben?",
+    options:[
+      "Wilcoxon-Test",
+      "Kruskal–Wallis-Test",
+      "Mann–Whitney-U-Test",
+      "Friedman-Test"
+    ],
+    correct:2,
+    feedback:[
+      "Nein. Wilcoxon ist typischerweise für gepaarte/abhängige Stichproben (2 Bedingungen).",
+      "Nein. Kruskal–Wallis ist für mehr als zwei unabhängige Gruppen.",
+      "Richtig. Mann–Whitney U vergleicht zwei unabhängige Gruppen (auf Basis von Rängen).",
+      "Nein. Friedman ist für mehr als zwei abhängige Messungen."
+    ],
+    transfer:false
+  },
+  {
+    id:"np-paired-two",
+    type:"mc",
+    title:"Testwahl: gepaarte Messungen",
+    question:"Welcher Test passt zu abhängigen Stichproben / Messwiederholung mit zwei Zeitpunkten?",
+    options:[
+      "Mann–Whitney-U-Test",
+      "Wilcoxon-Test",
+      "Kruskal–Wallis-Test",
+      "Chi-Quadrat-Test"
+    ],
+    correct:1,
+    feedback:[
+      "Nein. Mann–Whitney ist für zwei unabhängige Gruppen.",
+      "Richtig. Wilcoxon (Signed-Rank) ist typisch für zwei abhängige Messungen.",
+      "Nein. Kruskal–Wallis ist für mehr als zwei unabhängige Gruppen.",
+      "Nein. Chi-Quadrat passt zu kategorialen Häufigkeiten/Tabellen."
+    ],
+    transfer:false
+  },
+  {
+    id:"np-anova-oneway",
+    type:"mc",
+    title:"Testwahl: mehr als zwei unabhängige Gruppen",
+    question:"Welcher Test ist das nichtparametrische Pendant zur einfaktoriellen ANOVA (mehr als zwei unabhängige Gruppen)?",
+    options:[
+      "Friedman-Test",
+      "Kruskal–Wallis-Test",
+      "Wilcoxon-Test",
+      "Pearson-Korrelation"
+    ],
+    correct:1,
+    feedback:[
+      "Nein. Friedman ist für mehr als zwei abhängige Bedingungen.",
+      "Richtig. Kruskal–Wallis ist der Rangtest für k unabhängige Gruppen.",
+      "Nein. Wilcoxon ist für zwei abhängige Bedingungen.",
+      "Nein. Korrelation ist ein Zusammenhangsmaß, kein Gruppenvergleich."
+    ],
+    transfer:false
+  },
+  {
+    id:"np-repeated-more-than-two",
+    type:"mc",
+    title:"Testwahl: mehr als zwei abhängige Messungen",
+    question:"Wie heißt das nichtparametrische Pendant, wenn man mehr als zwei abhängige Messzeitpunkte/Bedingungen vergleicht?",
+    options:[
+      "Friedman-Test",
+      "Kruskal–Wallis-Test",
+      "Mann–Whitney-U-Test",
+      "Levene-Test"
+    ],
+    correct:0,
+    feedback:[
+      "Richtig. Friedman ist das Pendant zur RM-ANOVA (mehr als zwei abhängige Bedingungen) auf Rangbasis.",
+      "Nein. Kruskal–Wallis ist für unabhängige Gruppen.",
+      "Nein. Mann–Whitney ist für zwei unabhängige Gruppen.",
+      "Nein. Levene testet Varianzhomogenität."
+    ],
+    transfer:false
+  },
+  {
+    id:"jamovi-where-np",
+    type:"mc",
+    title:"Jamovi – Umsetzung",
+    question:"Wie findet man nichtparametrische Alternativen in Jamovi typischerweise?",
+    options:[
+      "Nur über ein eigenes Menü „Nonparametrics“",
+      "Direkt innerhalb der parametrischen Analyse (z. B. t-Test → Option „Mann-Whitney U“ anhaken)",
+      "Nur über manuelle Rang-Transformation im Daten-Tab",
+      "Nur über R-Plugins"
+    ],
+    correct:1,
+    feedback:[
+      "Nein. Jamovi bietet häufig Optionen direkt in den jeweiligen Analysen.",
+      "Richtig. Oft sind nichtparametrische Alternativen als Option in der Analyse integriert.",
+      "Nein. Manuelle Rangbildung ist möglich, aber nicht der Standardweg in Jamovi.",
+      "Nein. Dafür braucht man keine Plugins."
+    ],
+    transfer:false
+  },
+  {
+    id:"np-interpretation-level",
+    type:"mc",
+    title:"Interpretationsebene",
+    question:"Was unterscheidet viele nichtparametrische Tests inhaltlich von ihren parametrischen Pendants?",
+    options:[
+      "Sie vergleichen Mittelwerte genauso wie t-Tests und ANOVA.",
+      "Sie vergleichen Varianzen statt Mittelwerte.",
+      "Sie basieren auf Rangunterschieden statt auf Mittelwertsdifferenzen.",
+      "Sie liefern keine Signifikanztests."
+    ],
+    correct:2,
+    feedback:[
+      "Nein. Viele nichtparametrische Tests zielen nicht primär auf Mittelwerte in Rohwert-Einheiten.",
+      "Nein. Das ist nicht die typische Zielgröße dieser Tests.",
+      "Richtig. Rangbasierte Tests prüfen Unterschiede in der Rangverteilung (oft als Lage-/Stochastik-Unterschied interpretiert).",
+      "Nein. Sie liefern ganz normal Inferenztests (p-Werte etc.)."
+    ],
+    transfer:false
+  },
+  {
+    id:"levene-then-what",
+    type:"mc",
+    title:"Entscheidungslogik: Levene-Test signifikant",
+    question:"In einer einfaktoriellen ANOVA ist der Levene-Test signifikant (Varianzen ungleich). Wie reagierst du im Sinne der Sitzung am ehesten korrekt?",
+    options:[
+      "Sofort Kruskal–Wallis rechnen, ohne weitere Prüfung.",
+      "Analyse abbrechen.",
+      "Prüfen, wie stark die Varianzverletzung ist und ggf. robuste Alternativen (z. B. Welch-ANOVA) in Betracht ziehen – nicht automatisch nichtparametrisch wechseln.",
+      "Alle Gruppen gleich groß machen, indem Fälle gelöscht werden."
+    ],
+    correct:2,
+    feedback:[
+      "Nein. Ein Automatismus ist methodisch unsauber; erst prüfen/abwägen.",
+      "Nein. Man muss nicht abbrechen – es gibt robuste Alternativen/Strategien.",
+      "Richtig. Varianzverletzung ≠ Pflicht zu nichtparametrisch; robuste Varianten (z. B. Welch) können passend sein.",
+      "Nein. „Daten passend machen“ durch Löschen ist in der Regel keine gute Strategie."
+    ],
+    transfer:false
+  },
+  {
+    id:"transfer-likert-big-n",
+    type:"mc",
+    title:"Transfer: Likert, Schiefe, große Stichprobe",
+    question:"Du hast eine sehr große Stichprobe und eine Likert-Skala als AV, die sichtbar schief ist. Was ist die pragmatischste Aussage im Sinne der Sitzung?",
+    options:[
+      "Nichtparametrisch ist zwingend, weil Likert nie parametrisch geht.",
+      "Parametrische Verfahren sind bei großer Stichprobe oft stabil; nichtparametrisch ist eher für Ausnahmefälle – Entscheidung begründen.",
+      "Man darf dann gar keinen Test rechnen.",
+      "Man muss automatisch alle Werte runden und dann Chi-Quadrat rechnen."
+    ],
+    correct:1,
+    feedback:[
+      "Nein. Das ist zu absolut; es hängt vom Messniveau, Modell, Ziel und der Robustheit ab.",
+      "Richtig. Bei großem n sind parametrische Verfahren oft robust; nichtparametrisch ist kein Automatismus – Begründung zählt.",
+      "Nein. Man kann sehr wohl testen – ggf. mit passenden (robusten) Verfahren.",
+      "Nein. Das ist weder Standard noch methodisch zwingend."
+    ],
+    transfer:true,
+    hint:"<b>Tipp:</b> Nichtparametrisch ist kein Muss und kein Bonus. Entscheidend ist die saubere Begründung (Datensituation, Annahmen, Fragestellung)."
+  }
+];
+
+// Totals
+const TOTAL_ITEMS = items.length;
+
+// Storage key
+const LS_KEY = `quiz_state_${COURSE_TAG}_${SESSION_TAG}_${TEMPLATE_VERSION}`;
+document.getElementById("lskey").textContent = LS_KEY;
+
+// State
+let state = JSON.parse(localStorage.getItem(LS_KEY) || "{}");
+if(!state.idx && state.idx!==0){ state = { idx:0, points:0, done:{} }; }
+
+function save(){ localStorage.setItem(LS_KEY, JSON.stringify(state)); }
+
+function setBar(){
+  const pct = Math.round((state.idx)/TOTAL_ITEMS*100);
+  document.getElementById("bar").style.width = pct+"%";
+  document.getElementById("points").textContent = state.points;
+  document.getElementById("maxpoints").textContent = TOTAL_ITEMS;
+  document.getElementById("idx").textContent = Math.min(state.idx+1, TOTAL_ITEMS);
+  document.getElementById("total").textContent = TOTAL_ITEMS;
+}
+
+function render(){
+  const it = items[state.idx];
+
+  document.getElementById("title").innerHTML =
+    `${state.idx+1}. ${it.title} ${it.transfer ? '<span class="badge" title="Transferfrage: neues Problem auf Basis des Gelernten">🧠 TRANSFER</span>' : ""}`;
+
+  document.getElementById("question").innerHTML = it.question;
+
+  const wrap = document.getElementById("options");
+  wrap.innerHTML = "";
+
+  const fb = document.getElementById("feedback");
+  fb.textContent=""; fb.className="fb";
+
+  const hint = document.getElementById("hint");
+  hint.style.display="none";
+  hint.innerHTML="";
+
+  const nextBtn = document.getElementById("nextBtn");
+  nextBtn.disabled = true;
+  document.getElementById("prevBtn").disabled = (state.idx===0);
+
+  it.options.forEach((opt,i)=>{
+    const row = document.createElement("label");
+    row.className="opt";
+    const inp = document.createElement("input"); inp.type="radio"; inp.name=it.id; inp.value=i;
+    const span = document.createElement("span"); span.innerHTML = opt;
+    row.appendChild(inp); row.appendChild(span);
+
+    row.addEventListener("click", ()=>{
+      const correct = (i===it.correct);
+      row.classList.add(correct? "correct":"incorrect");
+
+      fb.textContent = it.feedback[i];
+      fb.className = "fb " + (correct? "ok":"bad");
+
+      Array.from(wrap.querySelectorAll("label.opt input")).forEach(el=>el.disabled=true);
+
+      if(it.transfer && !correct && it.hint){
+        hint.style.display = "block";
+        hint.innerHTML = it.hint;
+      }
+
+      if(!(it.id in state.done)){
+        state.points += correct ? 1 : 0;
+        state.done[it.id] = correct? "full":"none";
+        save();
+      }
+      nextBtn.disabled = false;
+      setBar();
+    });
+
+    wrap.appendChild(row);
+  });
+
+  setBar();
+}
+
+document.getElementById("nextBtn").addEventListener("click", ()=>{
+  if(state.idx < TOTAL_ITEMS-1){ state.idx++; save(); render(); }
+  else {
+    alert(`Geschafft! Punkte: ${state.points} von ${TOTAL_ITEMS}. Du hast alle ${TOTAL_ITEMS} Aufgaben abgeschlossen.`);
+  }
+});
+document.getElementById("prevBtn").addEventListener("click", ()=>{
+  if(state.idx>0){ state.idx--; save(); render(); }
+});
+
+document.getElementById("resetBtn").addEventListener("click", ()=>{
+  if(confirm("Fortschritt wirklich löschen und neu starten?")){
+    localStorage.removeItem(LS_KEY);
+    state = { idx:0, points:0, done:{} };
+    save();
+    render();
+    alert("Zurückgesetzt. Viel Erfolg beim neuen Durchlauf!");
+  }
+});
+
+render();
+</script>
+</body>
+</html>
