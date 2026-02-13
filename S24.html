@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>QUANT – Sitzung 24: Mixed-Methods & Anschlussfähigkeit qualitativer Verfahren (Interaktives Quiz)</title>
+
+<style>
+  :root{
+    --bg:#0b1220; --card:#121826; --muted:#9aa4b2; --text:#eef2f7;
+    --accent:#7dd3fc; --ok:#34d399; --bad:#f87171; --btn:#38bdf8;
+  }
+  html,body{height:100%}
+  body{margin:0;background:linear-gradient(135deg,#0b1220 0%,#0f172a 100%);color:var(--text);
+       font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+       display:flex;align-items:center;justify-content:center;padding:24px}
+  .shell{width:100%;max-width:940px}
+  header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;gap:16px}
+  h1{font-size:20px;margin:0}
+  .progress{height:10px;background:#1f2937;border-radius:999px;overflow:hidden}
+  .progress span{display:block;height:10px;background:linear-gradient(90deg,#38bdf8,#60a5fa);width:0%}
+  .card{background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.02));
+        border:1px solid #1f2937;border-radius:18px;padding:20px;box-shadow:0 10px 40px rgba(2,6,23,.4)}
+  .title{font-weight:800;font-size:18px;margin-bottom:6px;display:flex;align-items:center;gap:10px}
+  .subtitle{color:var(--muted);margin-bottom:14px}
+  .opt{display:flex;gap:10px;align-items:center;margin:10px 0;padding:12px;border:1px solid #1f2937;border-radius:12px;cursor:pointer}
+  .opt input{margin:0}
+  .opt.correct{border-color:#065f46;background:rgba(16,185,129,.12)}
+  .opt.incorrect{border-color:#7f1d1d;background:rgba(239,68,68,.10)}
+  .btns{display:flex;gap:10px;justify-content:flex-end;margin-top:16px}
+  button{background:var(--btn);color:#0b1220;border:none;border-radius:10px;padding:10px 14px;font-weight:700;cursor:pointer}
+  button.secondary{background:#1f2937;color:var(--text)}
+  button[disabled]{opacity:.4;cursor:not-allowed}
+  .fb{margin-top:10px;font-size:14px}
+  .ok{color:var(--ok)} .bad{color:var(--bad)}
+  .muted{color:var(--muted)}
+  .badge{display:inline-block;font-size:12px;font-weight:800;letter-spacing:.04em;
+         padding:2px 8px;border-radius:999px;border:1px solid #334155;color:var(--accent);
+         background:rgba(125,211,252,.10)}
+  .hint{margin-top:8px;color:var(--muted);font-size:13px}
+  .hint b{color:var(--accent)}
+  details{margin-top:6px}
+  details summary{cursor:pointer}
+  code{color:var(--accent)}
+</style>
+</head>
+
+<body>
+<div class="shell">
+  <header>
+    <div>
+      <h1>QUANT – Sitzung 24: Mixed-Methods & Anschlussfähigkeit qualitativer Verfahren</h1>
+      <div class="muted" id="meta">Punkte: <b id="points">0</b> / <b id="maxpoints">0</b> • Aufgabe <b id="idx">1</b>/<b id="total">0</b></div>
+      <details>
+        <summary>Info</summary>
+        <div class="muted">
+          Step-by-step Quiz zur Sitzung 24 (Mixed-Methods & Anschlussfähigkeit qualitativer Verfahren).
+          Scoring: <b>+1</b> pro richtige Antwort, <b>+0</b> bei falscher Antwort.
+          Transferfragen sind mit <span class="badge">🧠 TRANSFER</span> markiert.
+        </div>
+      </details>
+    </div>
+    <div style="min-width:280px">
+      <div class="progress"><span id="bar"></span></div>
+      <div style="margin-top:8px;display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap">
+        <button id="resetBtn" class="secondary" title="Fortschritt löschen und neu starten">Neu starten</button>
+      </div>
+      <div class="muted" style="text-align:right;margin-top:6px">
+        Key: <code id="lskey"></code>
+      </div>
+    </div>
+  </header>
+
+  <div class="card">
+    <div class="title" id="title"></div>
+    <div class="subtitle" id="question"></div>
+    <div id="options"></div>
+    <div class="fb" id="feedback"></div>
+    <div class="hint" id="hint" style="display:none"></div>
+    <div class="btns">
+      <button class="secondary" id="prevBtn">Zurück</button>
+      <button id="nextBtn" disabled>Weiter</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ================== CONFIG ==================
+const TEMPLATE_VERSION = "v4-simple";
+const COURSE_TAG = "QUANT2";
+const SESSION_TAG = "S24";
+// ============================================
+
+// =============== ITEMS ===============
+// Hinweis (für uns): correct = Index der richtigen Antwort (0-basiert!)
+const items = [
+  {
+    id:"scope-meaning",
+    type:"mc",
+    title:"Reichweite quantitativer Modelle",
+    question:"Eine Regressionsanalyse zeigt, dass finanzielle Belastung signifikant mit psychischer Belastung zusammenhängt. Welche Frage kann dieses Modell nicht direkt beantworten?",
+    options:[
+      "Ob der Zusammenhang statistisch signifikant ist",
+      "Wie stark der Effekt ist",
+      "Welche subjektive Bedeutung Betroffene der finanziellen Belastung zuschreiben",
+      "Ob Drittvariablen kontrolliert wurden"
+    ],
+    correct:2,
+    feedback:[
+      "Das kann das Modell beantworten (Signifikanztest).",
+      "Das kann das Modell beantworten (Effektstärke/Schätzer).",
+      "Richtig. Subjektive Bedeutungen/Deutungen sind nicht direkt aus den Zahlen ableitbar.",
+      "Kontrollen sind Teil des Modells bzw. des Berichtens – das ist prinzipiell beantwortbar."
+    ],
+    transfer:false
+  },
+  {
+    id:"operationalization-reduction",
+    type:"mc",
+    title:"Operationalisierung & Bedeutung",
+    question:"Eine Studie misst „Integration“ ausschließlich über Erwerbsstatus. Was ist hier die zentrale methodische Leerstelle?",
+    options:[
+      "Fehlende Reliabilitätsprüfung",
+      "Unklare Stichprobengröße",
+      "Reduktion eines komplexen Konstrukts auf eine formale Kennzahl",
+      "Fehlende Signifikanztests"
+    ],
+    correct:2,
+    feedback:[
+      "Reliabilität kann relevant sein, ist aber nicht der Kern des Problems hier.",
+      "Stichprobengröße ist nicht die zentrale Leerstelle dieser Operationalisierung.",
+      "Richtig. Ein komplexes Konstrukt wird auf einen engen Indikator reduziert – Bedeutungen/Kontexte gehen verloren.",
+      "Signifikanztests lösen das Konstruktproblem nicht."
+    ],
+    transfer:false
+  },
+  {
+    id:"blindspot-meaning-frames",
+    type:"mc",
+    title:"Typische Leerstelle",
+    question:"Welche Dimension bleibt in standardisierten Fragebögen häufig unterbelichtet?",
+    options:[
+      "Verteilungseigenschaften der Variablen",
+      "Subjektive Deutungsrahmen der Befragten",
+      "Effektstärken",
+      "Multikollinearität"
+    ],
+    correct:1,
+    feedback:[
+      "Verteilungen kann man beschreiben/prüfen – das ist keine typische „Leerstelle“.",
+      "Richtig. Bedeutungen/Deutungsrahmen sind schwer standardisiert zu erfassen.",
+      "Effektstärken sind berichtbar – kein blinder Fleck im selben Sinne.",
+      "Multikollinearität ist ein Modellproblem, keine typische inhaltliche Leerstelle."
+    ],
+    transfer:false
+  },
+  {
+    id:"logic-qual-to-QUANT",
+    type:"mc",
+    title:"Anschlusslogik erkennen",
+    question:"Eine qualitative Vorstudie identifiziert neue Dimensionen eines Konstrukts, die anschließend in einem standardisierten Instrument operationalisiert und in einer großen Stichprobe getestet werden. Welche Anschlusslogik liegt vor?",
+    options:[
+      "quant → QUAL",
+      "qual → QUANT",
+      "QUANT + QUAL parallel",
+      "Replikationsdesign"
+    ],
+    correct:1,
+    feedback:[
+      "Nein. Das wäre: erst QUANT, dann vertiefend QUAL.",
+      "Richtig. Erst qualitativ erkunden, dann quantitativ testen/prüfen.",
+      "Nein. Parallel bedeutet: gleichzeitig und danach integrieren.",
+      "Nein. Replikation ist Wiederholung zur Überprüfung bestehender Befunde."
+    ],
+    transfer:false
+  },
+  {
+    id:"logic-quant-to-QUAL",
+    type:"mc",
+    title:"Anschlusslogik erkennen II",
+    question:"Eine quantitative Studie zeigt einen unerwarteten Gruppenunterschied. Anschließend werden Interviews geführt, um die Befunde zu verstehen. Welche Anschlusslogik liegt hier vor?",
+    options:[
+      "qual → QUANT",
+      "quant → QUAL",
+      "QUANT + QUAL ohne Bezug",
+      "Meta-Analyse"
+    ],
+    correct:1,
+    feedback:[
+      "Nein. Das wäre: erst qualitativ, dann quantitativ.",
+      "Richtig. Erst QUANT-Befund, dann QUAL zur Erklärung/Einordnung.",
+      "Nein. Es gibt hier klaren Bezug (QUAL erklärt QUANT-Befund).",
+      "Nein. Meta-Analyse ist Synthese mehrerer Studien."
+    ],
+    transfer:false
+  },
+  {
+    id:"logic-QUANT-plus-QUAL",
+    type:"mc",
+    title:"Paralleles Design",
+    question:"Quantitative Befragung und qualitative Interviews werden gleichzeitig durchgeführt und getrennt ausgewertet, anschließend systematisch zusammengeführt. Welche Logik beschreibt das am treffendsten?",
+    options:[
+      "qual → QUANT",
+      "quant → QUAL",
+      "QUANT + QUAL",
+      "Explorative Vorstudie"
+    ],
+    correct:2,
+    feedback:[
+      "Nein. Das wäre sequentiell: erst qual, dann QUANT.",
+      "Nein. Das wäre sequentiell: erst quant, dann QUAL.",
+      "Richtig. Parallel (QUANT + QUAL) und anschließend Integration.",
+      "Nein. Vorstudie wäre eher eine vorbereitende Phase vor einer Hauptstudie."
+    ],
+    transfer:false
+  },
+  {
+    id:"convergence-interpretation",
+    type:"mc",
+    title:"Konvergenz",
+    question:"Quantitative und qualitative Befunde führen zum gleichen Ergebnis. Wie ist das methodisch am sinnvollsten zu interpretieren?",
+    options:[
+      "Die qualitative Studie war redundant.",
+      "Die quantitative Studie war überflüssig.",
+      "Die Befunde gewinnen durch konvergierende Evidenz an Robustheit.",
+      "Es liegt ein methodischer Zirkelschluss vor."
+    ],
+    correct:2,
+    feedback:[
+      "Nein. Konvergenz kann gerade die Aussage stärken.",
+      "Nein. Konvergenz macht nicht eine Methode überflüssig – sie erhöht Vertrauen.",
+      "Richtig. Übereinstimmende Evidenz aus verschiedenen Zugängen erhöht Robustheit.",
+      "Nein. Zirkelschluss wäre eine Logikfalle; Konvergenz ist nicht automatisch ein Zirkelschluss."
+    ],
+    transfer:false
+  },
+  {
+    id:"contradiction-interpretation",
+    type:"mc",
+    title:"Widerspruch",
+    question:"Quantitative Daten zeigen geringe Belastung, qualitative Interviews berichten massive Belastung. Welche Interpretation ist am ehesten angemessen?",
+    options:[
+      "Eine der beiden Methoden ist fehlerhaft.",
+      "Die quantitative Stichprobe war zu klein.",
+      "Der Widerspruch kann auf unterschiedliche Perspektiven oder Operationalisierungen hinweisen.",
+      "Qualitative Daten sind weniger valide."
+    ],
+    correct:2,
+    feedback:[
+      "Nicht zwingend. Widersprüche können informativ sein, nicht nur Fehler.",
+      "Stichprobengröße kann ein Thema sein, erklärt den Widerspruch aber nicht automatisch.",
+      "Richtig. Unterschiede in Messlogik, Kontext, Definitionen oder Perspektiven können zu scheinbaren Widersprüchen führen.",
+      "Nein. „Valider“ ist hier kein pauschales Argument; es hängt von Fragestellung und Umsetzung ab."
+    ],
+    transfer:false
+  },
+  {
+    id:"variance-explained",
+    type:"mc",
+    title:"Epistemische Grenze",
+    question:"Ein hochsignifikanter Effekt erklärt 6 % Varianz. Welche Aussage ist epistemisch korrekt?",
+    options:[
+      "Der Effekt ist praktisch irrelevant.",
+      "Die Hypothese ist eindeutig bestätigt.",
+      "Der Befund erklärt nur einen begrenzten Teil der beobachteten Variation.",
+      "Das Modell ist unbrauchbar."
+    ],
+    correct:2,
+    feedback:[
+      "Nicht automatisch. Praktische Relevanz hängt von Kontext, Kosten/Nutzen, Konsequenzen etc. ab.",
+      "Nein. Signifikanz ≠ Eindeutigkeit; außerdem bleibt viel unerklärt.",
+      "Richtig. 6 % Varianz bedeutet: ein Teil ist erklärt, aber ein großer Teil bleibt offen.",
+      "Nein. Ein Modell kann nützlich sein, auch wenn es nur einen Teil erklärt."
+    ],
+    transfer:false
+  },
+  {
+    id:"why-quant-incomplete",
+    type:"mc",
+    title:"Kontextualisierung",
+    question:"Warum kann eine rein quantitative Analyse sozialer Ungleichheit unvollständig bleiben?",
+    options:[
+      "Weil Signifikanztests zu ungenau sind",
+      "Weil statistische Modelle keine Kontexte berücksichtigen können",
+      "Weil strukturelle und biografische Bedeutungen nicht automatisch sichtbar werden",
+      "Weil qualitative Forschung immer präziser ist"
+    ],
+    correct:2,
+    feedback:[
+      "Nein. Das ist nicht der Kernpunkt.",
+      "Zu absolut. Modelle können Kontextvariablen enthalten, aber Bedeutungen entstehen nicht automatisch.",
+      "Richtig. Bedeutungen, Deutungen und biografische Einbettungen werden nicht automatisch durch Zahlen sichtbar.",
+      "Nein. Präzision hängt von Fragestellung und Methode ab; das ist keine allgemeine Hierarchie."
+    ],
+    transfer:false
+  },
+  {
+    id:"when-qual-to-QUANT",
+    type:"mc",
+    title:"Anschlussfähigkeit prüfen",
+    question:"Welche Situation spricht am ehesten für qual → QUANT?",
+    options:[
+      "Es existieren bereits validierte Skalen.",
+      "Ein Konstrukt ist theoretisch gut definiert.",
+      "Es gibt wenig Vorwissen über relevante Dimensionen.",
+      "Eine Hypothese soll repliziert werden."
+    ],
+    correct:2,
+    feedback:[
+      "Dann kann QUANT direkt sinnvoll sein; qual → QUANT ist nicht zwingend nötig.",
+      "Auch dann kann QUANT direkt möglich sein; qual → QUANT ist eher bei Unklarheit hilfreich.",
+      "Richtig. Wenn Dimensionen unklar sind, hilft qualitatives Erkunden als Basis für QUANT-Operationalisierung.",
+      "Replikation ist eher ein QUANT-Logik-Thema, nicht primär qual → QUANT."
+    ],
+    transfer:false
+  },
+  {
+    id:"mixed-methods-misconception",
+    type:"mc",
+    title:"Methodologische Fehleinschätzung",
+    question:"„Mixed Methods bedeutet, dass man sowohl Mittelwerte als auch Zitate berichtet.“ Was ist daran problematisch?",
+    options:[
+      "Zitate sind keine wissenschaftlichen Daten.",
+      "Mixed Methods meint mehr als Methodenvielfalt; entscheidend ist systematische Integration.",
+      "Mittelwerte sind nicht interpretierbar.",
+      "Qualitative Methoden dürfen nicht in quantitativen Designs vorkommen."
+    ],
+    correct:1,
+    feedback:[
+      "Nein. Zitate können Daten sein (je nach Methode und Auswertung).",
+      "Richtig. Mixed Methods heißt: Verbindung/Integration der Logiken – nicht nur nebeneinander berichten.",
+      "Nein. Mittelwerte sind interpretierbar (kontextabhängig).",
+      "Nein. Qualitative Methoden können sehr wohl kombiniert werden."
+    ],
+    transfer:false
+  },
+  {
+    id:"when-qual-followup",
+    type:"mc",
+    title:"Erklärungstiefe",
+    question:"Wann ist qualitative Anschlussforschung besonders sinnvoll?",
+    options:[
+      "Wenn Effektstärken sehr groß sind",
+      "Wenn Signifikanzwerte knapp unter .05 liegen",
+      "Wenn ein Befund erklärungsbedürftig oder theoretisch irritierend ist",
+      "Wenn die Stichprobe klein ist"
+    ],
+    correct:2,
+    feedback:[
+      "Große Effekte können interessant sein, aber sind kein spezifischer Grund für QUAL-Anschluss.",
+      "p-Werte knapp unter .05 sind kein sinnvoller Grund für QUAL – das wäre fragwürdig.",
+      "Richtig. QUAL kann helfen, Mechanismen, Bedeutungen und Kontexte zu verstehen.",
+      "Kleine Stichprobe kann ein Grund sein, muss aber nicht die Logik von QUAL-Anschluss begründen."
+    ],
+    transfer:false
+  },
+  {
+    id:"limited-scope-meaning",
+    type:"mc",
+    title:"Begrenzter Geltungsbereich",
+    question:"Was bedeutet es, dass quantitative Modelle „präzise Werkzeuge mit begrenztem Geltungsbereich“ sind?",
+    options:[
+      "Sie sind weniger wissenschaftlich als qualitative Verfahren.",
+      "Sie liefern exakte Schätzungen innerhalb klar definierter Annahmen und Operationalisierungen.",
+      "Sie funktionieren nur bei großen Stichproben.",
+      "Sie sind auf Experimente beschränkt."
+    ],
+    correct:1,
+    feedback:[
+      "Nein. Wissenschaftlichkeit hängt nicht an der Methode, sondern an Fragestellung und sauberer Umsetzung.",
+      "Richtig. Präzise innerhalb definierter Annahmen – aber nicht allzuständig für Bedeutungen/Kontexte.",
+      "Nein. Modelle funktionieren auch mit kleineren Stichproben (mit Einschränkungen).",
+      "Nein. Quantitative Modelle sind nicht auf Experimente beschränkt."
+    ],
+    transfer:false
+  },
+  {
+    id:"productive-contradiction",
+    type:"mc",
+    title:"Produktiver Widerspruch",
+    question:"Ein Mixed-Methods-Projekt zeigt: Quantitative Daten stützen Hypothese A, qualitative Analysen legen eine alternative Deutung nahe. Was ist methodisch am reflektiertesten?",
+    options:[
+      "Die qualitative Analyse verwerfen.",
+      "Die quantitative Analyse als objektiver bewerten.",
+      "Den Widerspruch als Anlass für theoretische Weiterentwicklung nutzen.",
+      "Beide Ergebnisse getrennt berichten, ohne Bezug."
+    ],
+    correct:2,
+    feedback:[
+      "Nein. QUAL liefert eine relevante Perspektive; verwerfen ohne Begründung ist unreflektiert.",
+      "Nein. „Objektiver“ ist kein pauschales Qualitätsargument; es hängt von Frage/Design ab.",
+      "Richtig. Widersprüche können Theorie schärfen, Operationalisierungen prüfen und neue Hypothesen erzeugen.",
+      "Eher nicht. Ohne Integration verliert Mixed Methods seinen Mehrwert."
+    ],
+    transfer:false
+  }
+];
+
+// Totals
+const TOTAL_ITEMS = items.length;
+
+// Storage key
+const LS_KEY = `quiz_state_${COURSE_TAG}_${SESSION_TAG}_${TEMPLATE_VERSION}`;
+document.getElementById("lskey").textContent = LS_KEY;
+
+// State
+let state = JSON.parse(localStorage.getItem(LS_KEY) || "{}");
+if(!state.idx && state.idx!==0){ state = { idx:0, points:0, done:{} }; }
+
+function save(){ localStorage.setItem(LS_KEY, JSON.stringify(state)); }
+
+function setBar(){
+  const pct = Math.round((state.idx)/TOTAL_ITEMS*100);
+  document.getElementById("bar").style.width = pct+"%";
+  document.getElementById("points").textContent = state.points;
+  document.getElementById("maxpoints").textContent = TOTAL_ITEMS;
+  document.getElementById("idx").textContent = Math.min(state.idx+1, TOTAL_ITEMS);
+  document.getElementById("total").textContent = TOTAL_ITEMS;
+}
+
+function render(){
+  const it = items[state.idx];
+
+  document.getElementById("title").innerHTML =
+    `${state.idx+1}. ${it.title} ${it.transfer ? '<span class="badge" title="Transferfrage: neues Problem auf Basis des Gelernten">🧠 TRANSFER</span>' : ""}`;
+
+  document.getElementById("question").innerHTML = it.question;
+
+  const wrap = document.getElementById("options");
+  wrap.innerHTML = "";
+
+  const fb = document.getElementById("feedback");
+  fb.textContent=""; fb.className="fb";
+
+  const hint = document.getElementById("hint");
+  hint.style.display="none";
+  hint.innerHTML="";
+
+  const nextBtn = document.getElementById("nextBtn");
+  nextBtn.disabled = true;
+  document.getElementById("prevBtn").disabled = (state.idx===0);
+
+  it.options.forEach((opt,i)=>{
+    const row = document.createElement("label");
+    row.className="opt";
+    const inp = document.createElement("input"); inp.type="radio"; inp.name=it.id; inp.value=i;
+    const span = document.createElement("span"); span.innerHTML = opt;
+    row.appendChild(inp); row.appendChild(span);
+
+    row.addEventListener("click", ()=>{
+      const correct = (i===it.correct);
+      row.classList.add(correct? "correct":"incorrect");
+
+      fb.textContent = it.feedback[i];
+      fb.className = "fb " + (correct? "ok":"bad");
+
+      Array.from(wrap.querySelectorAll("label.opt input")).forEach(el=>el.disabled=true);
+
+      if(it.transfer && !correct && it.hint){
+        hint.style.display = "block";
+        hint.innerHTML = it.hint;
+      }
+
+      if(!(it.id in state.done)){
+        state.points += correct ? 1 : 0;
+        state.done[it.id] = correct? "full":"none";
+        save();
+      }
+      nextBtn.disabled = false;
+      setBar();
+    });
+
+    wrap.appendChild(row);
+  });
+
+  setBar();
+}
+
+document.getElementById("nextBtn").addEventListener("click", ()=>{
+  if(state.idx < TOTAL_ITEMS-1){ state.idx++; save(); render(); }
+  else {
+    alert(`Geschafft! Punkte: ${state.points} von ${TOTAL_ITEMS}. Du hast alle ${TOTAL_ITEMS} Aufgaben abgeschlossen.`);
+  }
+});
+document.getElementById("prevBtn").addEventListener("click", ()=>{
+  if(state.idx>0){ state.idx--; save(); render(); }
+});
+
+document.getElementById("resetBtn").addEventListener("click", ()=>{
+  if(confirm("Fortschritt wirklich löschen und neu starten?")){
+    localStorage.removeItem(LS_KEY);
+    state = { idx:0, points:0, done:{} };
+    save();
+    render();
+    alert("Zurückgesetzt. Viel Erfolg beim neuen Durchlauf!");
+  }
+});
+
+render();
+</script>
+</body>
+</html>
