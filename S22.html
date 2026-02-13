@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>QUANT – Sitzung 22: Wissenschaftlicher Report (Ergebnisse & Diskussion) (Interaktives Quiz)</title>
+
+<style>
+  :root{
+    --bg:#0b1220; --card:#121826; --muted:#9aa4b2; --text:#eef2f7;
+    --accent:#7dd3fc; --ok:#34d399; --bad:#f87171; --btn:#38bdf8;
+  }
+  html,body{height:100%}
+  body{margin:0;background:linear-gradient(135deg,#0b1220 0%,#0f172a 100%);color:var(--text);
+       font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+       display:flex;align-items:center;justify-content:center;padding:24px}
+  .shell{width:100%;max-width:940px}
+  header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px;gap:16px}
+  h1{font-size:20px;margin:0}
+  .progress{height:10px;background:#1f2937;border-radius:999px;overflow:hidden}
+  .progress span{display:block;height:10px;background:linear-gradient(90deg,#38bdf8,#60a5fa);width:0%}
+  .card{background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.02));
+        border:1px solid #1f2937;border-radius:18px;padding:20px;box-shadow:0 10px 40px rgba(2,6,23,.4)}
+  .title{font-weight:800;font-size:18px;margin-bottom:6px;display:flex;align-items:center;gap:10px}
+  .subtitle{color:var(--muted);margin-bottom:14px}
+  .opt{display:flex;gap:10px;align-items:center;margin:10px 0;padding:12px;border:1px solid #1f2937;border-radius:12px;cursor:pointer}
+  .opt input{margin:0}
+  .opt.correct{border-color:#065f46;background:rgba(16,185,129,.12)}
+  .opt.incorrect{border-color:#7f1d1d;background:rgba(239,68,68,.10)}
+  .btns{display:flex;gap:10px;justify-content:flex-end;margin-top:16px}
+  button{background:var(--btn);color:#0b1220;border:none;border-radius:10px;padding:10px 14px;font-weight:700;cursor:pointer}
+  button.secondary{background:#1f2937;color:var(--text)}
+  button[disabled]{opacity:.4;cursor:not-allowed}
+  .fb{margin-top:10px;font-size:14px}
+  .ok{color:var(--ok)} .bad{color:var(--bad)}
+  .muted{color:var(--muted)}
+  .badge{display:inline-block;font-size:12px;font-weight:800;letter-spacing:.04em;
+         padding:2px 8px;border-radius:999px;border:1px solid #334155;color:var(--accent);
+         background:rgba(125,211,252,.10)}
+  .hint{margin-top:8px;color:var(--muted);font-size:13px}
+  .hint b{color:var(--accent)}
+  details{margin-top:6px}
+  details summary{cursor:pointer}
+  code{color:var(--accent)}
+</style>
+</head>
+
+<body>
+<div class="shell">
+  <header>
+    <div>
+      <h1>QUANT – Sitzung 22: Wissenschaftlicher Report (Ergebnisse & Diskussion)</h1>
+      <div class="muted" id="meta">Punkte: <b id="points">0</b> / <b id="maxpoints">0</b> • Aufgabe <b id="idx">1</b>/<b id="total">0</b></div>
+      <details>
+        <summary>Info</summary>
+        <div class="muted">
+          Step-by-step Quiz zur Sitzung 22 (Gesamtaufbau eines gelungenen schriftlichen Reports – Schwerpunkt Ergebnisse & Diskussion).
+          Scoring: <b>+1</b> pro richtige Antwort, <b>+0</b> bei falscher Antwort.
+          Transferfragen sind mit <span class="badge">🧠 TRANSFER</span> markiert.
+        </div>
+      </details>
+    </div>
+    <div style="min-width:280px">
+      <div class="progress"><span id="bar"></span></div>
+      <div style="margin-top:8px;display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap">
+        <button id="resetBtn" class="secondary" title="Fortschritt löschen und neu starten">Neu starten</button>
+      </div>
+      <div class="muted" style="text-align:right;margin-top:6px">
+        Key: <code id="lskey"></code>
+      </div>
+    </div>
+  </header>
+
+  <div class="card">
+    <div class="title" id="title"></div>
+    <div class="subtitle" id="question"></div>
+    <div id="options"></div>
+    <div class="fb" id="feedback"></div>
+    <div class="hint" id="hint" style="display:none"></div>
+    <div class="btns">
+      <button class="secondary" id="prevBtn">Zurück</button>
+      <button id="nextBtn" disabled>Weiter</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ================== CONFIG ==================
+const TEMPLATE_VERSION = "v4-simple";
+const COURSE_TAG = "QUANT2";
+const SESSION_TAG = "S22";
+// ============================================
+
+// =============== ITEMS ===============
+// Hinweis (für uns): correct = Index der richtigen Antwort (0-basiert!)
+const items = [
+  {
+    id:"rq-compass",
+    type:"mc",
+    title:"Forschungsfrage als Kompass",
+    question:"Ein Ergebnisteil beginnt so: „Zunächst wurde die Verteilung der Variablen geprüft. Anschließend wurden Mittelwerte berechnet. Danach wurde eine lineare Regression gerechnet.“ Was ist hier das Hauptproblem?",
+    options:[
+      "Die statistischen Verfahren sind falsch gewählt.",
+      "Der Text beginnt nicht mit der Beantwortung der Forschungsfrage.",
+      "Es fehlen p-Werte.",
+      "Es ist zu wenig Statistik enthalten."
+    ],
+    correct:1,
+    feedback:[
+      "Nicht zwingend. Das Problem ist eher die Leserführung und der fehlende Bezug zur Frage.",
+      "Richtig. Ergebnistexte sollten an der Forschungsfrage entlang strukturiert sein – nicht als Methodenprotokoll starten.",
+      "Nein. p-Werte sind nicht der zentrale Punkt dieser Kritik.",
+      "Nein. Es geht nicht um Menge, sondern um Fokus und Struktur."
+    ],
+    transfer:false
+  },
+  {
+    id:"claim-before-tech",
+    type:"mc",
+    title:"Kernaussage vor Technik",
+    question:"Welche Version entspricht eher dem Prinzip „Kernaussage vor Technik“?",
+    options:[
+      "„Ein t-Test ergab einen signifikanten Unterschied (t(84) = 2.31, p = .024).“",
+      "„Die Interventionsgruppe zeigte signifikant höhere Werte als die Kontrollgruppe (t(84) = 2.31, p = .024).“",
+      "„Ein t-Test wurde gerechnet, um Unterschiede zu prüfen; das Ergebnis war signifikant.“",
+      "„Die Ergebnisse sind signifikant und daher interpretierbar.“"
+    ],
+    correct:1,
+    feedback:[
+      "Eher nicht. Technik zuerst, Aussage versteckt.",
+      "Richtig. Aussage zuerst, Statistik stützt.",
+      "Eher nicht. Es bleibt ein Abarbeitungsstil („was wir gemacht haben“).",
+      "Nein. Das ist inhaltlich problematisch (Signifikanz ≠ Interpretierbarkeit)."
+    ],
+    transfer:false
+  },
+  {
+    id:"method-inflation",
+    type:"mc",
+    title:"Methoden-Orgie",
+    question:"Ein Bericht listet im Ergebnisteil nacheinander: Levene-Test, Shapiro-Wilk, Kolmogorov-Smirnov, QQ-Plot-Beschreibung, anschließend t-Test. Was ist aus Sitzungsperspektive das Problem?",
+    options:[
+      "Die Tests sind statistisch falsch.",
+      "Annahmeprüfungen dürfen nie berichtet werden.",
+      "Der Text verliert den Fokus durch übermäßige Methodendetails.",
+      "Ohne mindestens drei Robustheitschecks ist ein t-Test ungültig."
+    ],
+    correct:2,
+    feedback:[
+      "Nicht zwingend. Das Problem ist nicht die Existenz der Tests, sondern die Präsentationslogik.",
+      "Nein. Manchmal kann man Annahmen kurz erwähnen – aber nicht als Zahlenorgie.",
+      "Richtig. Ergebnistext soll führen; Details gehören ggf. in Anhang/Fußnote.",
+      "Nein. Das ist kein Standard und so nicht korrekt."
+    ],
+    transfer:false
+  },
+  {
+    id:"table-text-division",
+    type:"mc",
+    title:"Text führt – Tabelle liefert Details",
+    question:"In einer Tabelle stehen alle Mittelwerte, SDs und p-Werte. Im Text steht exakt dieselbe Information noch einmal vollständig ausgeschrieben. Welche Aussage beschreibt den Kernfehler am besten?",
+    options:[
+      "Tabellen sind grundsätzlich unzulässig.",
+      "Redundanz ohne Mehrwert zerstört den Lesefluss.",
+      "p-Werte dürfen nur in Tabellen stehen.",
+      "Man sollte grundsätzlich alles nur im Text berichten."
+    ],
+    correct:1,
+    feedback:[
+      "Nein. Tabellen sind normal und oft sinnvoll.",
+      "Richtig. Der Text soll die Kernaussage führen; die Tabelle trägt die Details, ohne dass alles doppelt steht.",
+      "Nein. p-Werte dürfen (je nach Kontext) auch im Text stehen.",
+      "Nein. Das wäre oft unübersichtlich und widerspricht guter Aufgabenteilung."
+    ],
+    transfer:false
+  },
+  {
+    id:"discussion-least-isolated",
+    type:"mc",
+    title:"Diskussion: Was gehört am wenigsten isoliert hinein?",
+    question:"Welche Passage gehört am wenigsten isoliert und ohne Einbettung in eine Diskussion?",
+    options:[
+      "„Die Befunde legen nahe, dass Intervention X wirksam sein könnte.“",
+      "„Die Ergebnisse stehen im Einklang mit Theorie Y.“",
+      "„Die Interventionsgruppe wies einen Mittelwert von 4.21 auf.“",
+      "„Die Generalisierbarkeit ist aufgrund der Stichprobe eingeschränkt.“"
+    ],
+    correct:2,
+    feedback:[
+      "Das kann als interpretierende Aussage in eine Diskussion passen (mit Begründung/Einordnung).",
+      "Das ist eine typische Diskussionseinbettung (mit Bezug auf Theorie/Literatur).",
+      "Richtig. Reine Zahlen ohne Kontext/Deutung gehören nicht isoliert in den Diskussionsteil.",
+      "Das ist klassische Selbstkritik/Limitations-Diskussion."
+    ],
+    transfer:false
+  },
+  {
+    id:"focus-loss-side-analyses",
+    type:"mc",
+    title:"Fokus durch Forschungsfrage",
+    question:"Eine Arbeit untersucht: „Unterscheidet sich das Stressempfinden zwischen Studierenden mit und ohne Nebenjob?“ Im Ergebnisteil werden zusätzlich ausführlich berichtet: Alter–Stress, Geschlecht–Stress, Semesterzahl–Stress. Was ist hier das Hauptproblem?",
+    options:[
+      "Diese Analysen sind grundsätzlich falsch.",
+      "Zusätzliche Analysen sind immer verboten.",
+      "Der Fokus auf die Forschungsfrage geht verloren.",
+      "Es hätte eine ANOVA statt Regression gerechnet werden müssen."
+    ],
+    correct:2,
+    feedback:[
+      "Nicht grundsätzlich. Sie können als Kontext sinnvoll sein – aber nicht als Hauptsache ohne klare Logik.",
+      "Nein. Verboten ist nichts; entscheidend ist Begründung und Priorisierung.",
+      "Richtig. Ohne klaren roten Faden wirkt es beliebig und überladen.",
+      "Nicht zwingend. Das ist hier nicht der zentrale Punkt."
+    ],
+    transfer:false
+  },
+  {
+    id:"significance-vs-meaning",
+    type:"mc",
+    title:"Signifikanz ≠ Bedeutung",
+    question:"„Der Effekt war hoch signifikant (p < .001) und daher bedeutsam.“ Welche Bewertung trifft am ehesten den methodischen Kern des Problems?",
+    options:[
+      "Der Ausdruck „hoch signifikant“ ist terminologisch unsauber.",
+      "Es wird nicht zwischen statistischer Evidenz und inhaltlicher Relevanz unterschieden.",
+      "Die Teststatistik fehlt.",
+      "Der p-Wert sollte exakt angegeben werden."
+    ],
+    correct:1,
+    feedback:[
+      "Kann man kritisieren – aber das ist nicht der Kernfehler.",
+      "Richtig. Signifikanz (Evidenz gegen H0) ist nicht automatisch inhaltliche Bedeutsamkeit/Größe/Praktische Relevanz.",
+      "Nein. Die Teststatistik ist hier nicht das Hauptproblem (und auch nicht zwingend immer nötig im gleichen Satz).",
+      "Das kann man machen, ist aber nicht der zentrale Punkt."
+    ],
+    transfer:false
+  },
+  {
+    id:"effect-size-integration",
+    type:"mc",
+    title:"Effektgröße integrieren",
+    question:"Welche Aussage entspricht eher guter Ergebnisdarstellung?",
+    options:[
+      "„Der Unterschied war signifikant.“",
+      "„Der Unterschied war signifikant (p = .021) und zeigte eine kleine Effektstärke (d = .28).“",
+      "„Der Unterschied war signifikant, daher ist die Hypothese bewiesen.“",
+      "„Der Unterschied war signifikant; Details siehe Software-Output.“"
+    ],
+    correct:1,
+    feedback:[
+      "Zu knapp: ohne Größenordnung/Einordnung bleibt es leer.",
+      "Richtig. Statistik stützt die Aussage; Effektstärke ordnet die Größe ein.",
+      "Nein. Signifikanz beweist keine Hypothese und sagt nichts über Kausalität aus.",
+      "Eher nicht. „Output“ ist keine Berichtsstrategie; man extrahiert relevante Kennwerte."
+    ],
+    transfer:false
+  },
+  {
+    id:"causal-overreach",
+    type:"mc",
+    title:"Überinterpretation vermeiden",
+    question:"„Da die Gruppen sich signifikant unterscheiden, beweist dies die Wirksamkeit der Intervention.“ Was ist das Kernproblem?",
+    options:[
+      "Signifikanz darf nicht berichtet werden.",
+      "Es fehlt der Konfidenzintervall.",
+      "Kausalität wird überinterpretiert.",
+      "Der p-Wert ist zu hoch."
+    ],
+    correct:2,
+    feedback:[
+      "Nein. Signifikanz darf berichtet werden.",
+      "CI kann sinnvoll sein, ist aber nicht der Kernfehler.",
+      "Richtig. Signifikanz allein belegt keine Kausalität/Wirksamkeit – Design und Störfaktoren sind entscheidend.",
+      "Nein. Die Aussage hängt nicht an einem bestimmten p-Wert."
+    ],
+    transfer:false
+  },
+  {
+    id:"discussion-theory-link",
+    type:"mc",
+    title:"Diskussion: Theoriebezug",
+    question:"Welche Diskussionseinleitung ist stärker im Sinne der Sitzung?",
+    options:[
+      "„Die Ergebnisse waren signifikant.“",
+      "„Die Befunde stützen die Annahme der Theorie X, wonach soziale Unterstützung Stress reduziert.“",
+      "„Die Ergebnisse zeigen einen Unterschied, der im nächsten Abschnitt erklärt wird.“",
+      "„Die Ergebnisse sind interessant und werden nun diskutiert.“"
+    ],
+    correct:1,
+    feedback:[
+      "Zu technik-/signifikanzzentriert und ohne Einordnung.",
+      "Richtig. Rückbindung an Theorie/Literatur macht Bedeutung erst sichtbar.",
+      "Zu vage und ohne theoretische Rahmung.",
+      "Zu vage; „interessant“ ersetzt keine Einordnung."
+    ],
+    transfer:false
+  },
+  {
+    id:"structure-order",
+    type:"mc",
+    title:"Struktur im Ergebnisteil",
+    question:"Welche Reihenfolge ist im Ergebnisteil am sinnvollsten?",
+    options:[
+      "Statistik → Deskriptives → Forschungsfrage",
+      "Forschungsfrage → Kernaussage → zentrale Statistik",
+      "Diskussion → Methode → Ergebnis",
+      "Annahmeprüfungen → p-Werte → Literatur"
+    ],
+    correct:1,
+    feedback:[
+      "Eher nicht. Ohne Frage/Claim wirkt das wie ein Technikprotokoll.",
+      "Richtig. Frage/Claim führt; Statistik stützt.",
+      "Nein. Das ist keine sinnvolle Reihenfolge für Ergebnistexte.",
+      "Nein. Das ist eine künstliche und unlogische Reihenfolge."
+    ],
+    transfer:false
+  },
+  {
+    id:"transfer-prioritization",
+    type:"mc",
+    title:"Transfer: Priorisierung",
+    question:"Ein Studierender berichtet im Ergebnisteil: Hauptanalyse zur Forschungsfrage, drei Explorationsanalysen, zwei Interaktionen, eine Mediationsanalyse. Alles ist korrekt gerechnet. Was ist die wahrscheinlichste strukturelle Schwäche?",
+    options:[
+      "Zu viele statistische Modelle im Datensatz.",
+      "Fehlende Transparenz über das Analysevorgehen.",
+      "Mangelnde argumentative Priorisierung im Verhältnis zur Forschungsfrage.",
+      "Zu geringe statistische Power."
+    ],
+    correct:2,
+    feedback:[
+      "Nicht der Punkt. Es geht nicht um „Modelle im Datensatz“, sondern um Darstellung/Struktur.",
+      "Transparenz kann ein Thema sein, aber das Hauptproblem ist hier eher die Gewichtung im Text.",
+      "Richtig. Ohne klare Priorisierung wirkt der Ergebnisteil überladen und ziellos.",
+      "Nicht zwingend. Power kann ein Problem sein, folgt aber nicht aus der bloßen Anzahl der Analysen."
+    ],
+    transfer:true,
+    hint:"<b>Tipp:</b> Ein Hauptmodell. Der Rest ist Kontext. Zusätzliche Analysen nur, wenn sie klar zur Frage beitragen – sonst eher in Anhang/Fußnote."
+  },
+  {
+    id:"transfer-two-versions",
+    type:"mc",
+    title:"Transfer: Leseführung in einem Satz",
+    question:"Welche Version führt Leser:innen besser?",
+    options:[
+      "„Es zeigte sich ein signifikanter Unterschied (t(98) = 2.41, p = .018).“",
+      "„Studierende mit Nebenjob berichteten signifikant höhere Stresswerte als Studierende ohne Nebenjob (t(98) = 2.41, p = .018).“",
+      "„Ein t-Test wurde durchgeführt; das Ergebnis war signifikant.“",
+      "„Die Hypothese wurde getestet und war signifikant.“"
+    ],
+    correct:1,
+    feedback:[
+      "Technik-first: Aussage bleibt unklar.",
+      "Richtig. Erst die Kernaussage, dann die Statistik als Stütze.",
+      "Abarbeitungsstil („was wir gemacht haben“), wenig Leserführung.",
+      "Unsauber formuliert; Hypothesen sind nicht „signifikant“."
+    ],
+    transfer:true,
+    hint:"<b>Tipp:</b> In einem Ergebnis-Satz sollte klar sein: <i>wer</i> ist <i>worin</i> <i>wie</i> anders – erst dann kommt die Statistik."
+  }
+];
+
+// Totals
+const TOTAL_ITEMS = items.length;
+
+// Storage key
+const LS_KEY = `quiz_state_${COURSE_TAG}_${SESSION_TAG}_${TEMPLATE_VERSION}`;
+document.getElementById("lskey").textContent = LS_KEY;
+
+// State
+let state = JSON.parse(localStorage.getItem(LS_KEY) || "{}");
+if(!state.idx && state.idx!==0){ state = { idx:0, points:0, done:{} }; }
+
+function save(){ localStorage.setItem(LS_KEY, JSON.stringify(state)); }
+
+function setBar(){
+  const pct = Math.round((state.idx)/TOTAL_ITEMS*100);
+  document.getElementById("bar").style.width = pct+"%";
+  document.getElementById("points").textContent = state.points;
+  document.getElementById("maxpoints").textContent = TOTAL_ITEMS;
+  document.getElementById("idx").textContent = Math.min(state.idx+1, TOTAL_ITEMS);
+  document.getElementById("total").textContent = TOTAL_ITEMS;
+}
+
+function render(){
+  const it = items[state.idx];
+
+  document.getElementById("title").innerHTML =
+    `${state.idx+1}. ${it.title} ${it.transfer ? '<span class="badge" title="Transferfrage: neues Problem auf Basis des Gelernten">🧠 TRANSFER</span>' : ""}`;
+
+  document.getElementById("question").innerHTML = it.question;
+
+  const wrap = document.getElementById("options");
+  wrap.innerHTML = "";
+
+  const fb = document.getElementById("feedback");
+  fb.textContent=""; fb.className="fb";
+
+  const hint = document.getElementById("hint");
+  hint.style.display="none";
+  hint.innerHTML="";
+
+  const nextBtn = document.getElementById("nextBtn");
+  nextBtn.disabled = true;
+  document.getElementById("prevBtn").disabled = (state.idx===0);
+
+  it.options.forEach((opt,i)=>{
+    const row = document.createElement("label");
+    row.className="opt";
+    const inp = document.createElement("input"); inp.type="radio"; inp.name=it.id; inp.value=i;
+    const span = document.createElement("span"); span.innerHTML = opt;
+    row.appendChild(inp); row.appendChild(span);
+
+    row.addEventListener("click", ()=>{
+      const correct = (i===it.correct);
+      row.classList.add(correct? "correct":"incorrect");
+
+      fb.textContent = it.feedback[i];
+      fb.className = "fb " + (correct? "ok":"bad");
+
+      Array.from(wrap.querySelectorAll("label.opt input")).forEach(el=>el.disabled=true);
+
+      if(it.transfer && !correct && it.hint){
+        hint.style.display = "block";
+        hint.innerHTML = it.hint;
+      }
+
+      if(!(it.id in state.done)){
+        state.points += correct ? 1 : 0;
+        state.done[it.id] = correct? "full":"none";
+        save();
+      }
+      nextBtn.disabled = false;
+      setBar();
+    });
+
+    wrap.appendChild(row);
+  });
+
+  setBar();
+}
+
+document.getElementById("nextBtn").addEventListener("click", ()=>{
+  if(state.idx < TOTAL_ITEMS-1){ state.idx++; save(); render(); }
+  else {
+    alert(`Geschafft! Punkte: ${state.points} von ${TOTAL_ITEMS}. Du hast alle ${TOTAL_ITEMS} Aufgaben abgeschlossen.`);
+  }
+});
+document.getElementById("prevBtn").addEventListener("click", ()=>{
+  if(state.idx>0){ state.idx--; save(); render(); }
+});
+
+document.getElementById("resetBtn").addEventListener("click", ()=>{
+  if(confirm("Fortschritt wirklich löschen und neu starten?")){
+    localStorage.removeItem(LS_KEY);
+    state = { idx:0, points:0, done:{} };
+    save();
+    render();
+    alert("Zurückgesetzt. Viel Erfolg beim neuen Durchlauf!");
+  }
+});
+
+render();
+</script>
+</body>
+</html>
